@@ -57,21 +57,18 @@ public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapte
 
         void bind(int listIndex) {
 
-            for (int i = 0; i < 20; i++) {
-
-
                 try {
                     Picasso.get()
-                            .load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(MainActivity.movieObject.getImage().get(i))))
+                            .load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(MainActivity.movieObject.getImage().get(listIndex))))
                             .placeholder(R.drawable.ic_launcher_background)
                             .error(R.drawable.ic_launcher_background)
                             .into(movieImage);
-                    Log.d("tag",MainActivity.movieObject.getOriginalTitle().get(i));
-                    movieText.setText(MainActivity.movieObject.getOriginalTitle().get(i));
+                    Log.d("tag",MainActivity.movieObject.getOriginalTitle().get(listIndex));
+                    movieText.setText(MainActivity.movieObject.getOriginalTitle().get(listIndex));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
+
         }
     }
 
