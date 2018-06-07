@@ -1,19 +1,34 @@
 package com.example.akshay.moviestageapp;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.transition.ChangeBounds;
+import android.transition.ChangeImageTransform;
+import android.transition.Explode;
+import android.transition.Transition;
+import android.transition.TransitionManager;
+import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.akshay.moviestageapp.Utilities.JsonUtils;
@@ -72,8 +87,59 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new RecyclerviewAdapter();
         recyclerView.setAdapter(mAdapter);
 
+       recyclerView.addOnItemTouchListener(
+                new RecyclerItemClickListener(this, recyclerView ,new RecyclerItemClickListener.OnItemClickListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                    @Override public void onItemClick(View view, int position) {
+
+                        final Rect viewRect = new Rect();
+                        view.getGlobalVisibleRect(viewRect);
+
+                        // create Explode transition with epicenter
+                        Transition explode = new Explode();
+                                explode.setEpicenterCallback(new Transition.EpicenterCallback() {
+                                    @Override
+                                    public Rect onGetEpicenter(Transition transition) {
+                                        return viewRect;
+                                    }
+                                });
+                        explode.setDuration(1000);
+                        TransitionManager.beginDelayedTransition(recyclerView, explode);
+
+                        // remove all views from Recycler View
+//                        recyclerView.setAdapter(null);
+
+//                        try{
+//                            Thread.sleep(2000);
+//                            startActivity(new Intent(getApplicationContext(),MovieDetailsActivity.class));
+//
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+
+                    }
+
+                    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+
+                    @Override public void onLongItemClick(View view, int position) {
+
+                        //TODO get that specific image using position
+
+                        ImageView imageView = findViewById(R.id.imageView);
+
+                        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.zoom_in_animation);
+                        imageView.startAnimation(animation);
+
+
+
+                    }
+                })
+        );
 
     }
+
+
 
 
     public class MovieDbQueryTask extends AsyncTask<URL,Void,String>{
@@ -114,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-    
+
 
     private void showError(String error) {
 
