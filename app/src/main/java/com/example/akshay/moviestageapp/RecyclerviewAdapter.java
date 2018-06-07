@@ -52,7 +52,7 @@ public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapte
         public RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
             movieImage = itemView.findViewById(R.id.imageView);
-            movieText = itemView.findViewById(R.id.textView);
+//            movieText = itemView.findViewById(R.id.textView);
         }
 
         void bind(int listIndex) {
@@ -63,8 +63,8 @@ public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapte
                             .placeholder(R.drawable.ic_launcher_background)
                             .error(R.drawable.ic_launcher_background)
                             .into(movieImage);
-                    Log.d("tag",MainActivity.movieObject.getOriginalTitle().get(listIndex));
-                    movieText.setText(MainActivity.movieObject.getOriginalTitle().get(listIndex));
+                    Log.d("tag",String.valueOf(NetworkUtils.getImageOfMovieDbUrl(MainActivity.movieObject.getImage().get(listIndex))));
+//                    movieText.setText(MainActivity.movieObject.getOriginalTitle().get(listIndex));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

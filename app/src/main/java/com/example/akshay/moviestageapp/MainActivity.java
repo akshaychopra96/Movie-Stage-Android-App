@@ -1,6 +1,7 @@
 package com.example.akshay.moviestageapp;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -10,6 +11,9 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.akshay.moviestageapp.Utilities.JsonUtils;
@@ -44,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
 
 
     URL movieDBJSONUrl = NetworkUtils.getPopularMovieDbUrl();
@@ -108,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+    
 
     private void showError(String error) {
 
@@ -115,5 +122,29 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
 
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.movie_category_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        switch (id){
+            case R.id.popular_menu:
+                break;
+
+            case R.id.top_rated_menu:
+
+                break;
+        }
+
+
+        return super.onOptionsItemSelected(item);
+    }
 }

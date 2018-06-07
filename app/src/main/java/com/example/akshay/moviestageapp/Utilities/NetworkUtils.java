@@ -6,10 +6,12 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.Scanner;
 
 public class NetworkUtils {
@@ -52,17 +54,22 @@ public class NetworkUtils {
 
         Uri builtUri = Uri.parse(IMAGE_BASE_URL).buildUpon()
                 .appendPath(IMAGE_SIZE_PATH)
-                .appendPath(imageURL)
+                .appendEncodedPath(imageURL)
                 .build();
 
         URL imageOfMovieDbUrl=null;
 
         try {
             imageOfMovieDbUrl = new URL(builtUri.toString());
-//            Log.d("tag",""+movieDbUrl);
+//            String encodedUrl = URLEncoder.encode(imageOfMovieDbUrl.toString(), "UTF-8");
+
+//                        Log.d("tag",""+encodedUrl);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+//         catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
 
         return imageOfMovieDbUrl;
     }
