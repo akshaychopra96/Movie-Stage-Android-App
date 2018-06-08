@@ -44,8 +44,9 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerviewAdapter mAdapter;
     private RecyclerView recyclerView;
 
-   /* NetworkInfo wifiCheck;
+   NetworkInfo wifiCheck;
     NetworkInfo mobileDataCheck;
+    /*
 
     @Override
     protected void onStart() {
@@ -67,47 +68,52 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    URL movieDBJSONUrl = NetworkUtils.getPopularMovieDbUrl();
+            URL movieDBJSONUrl = NetworkUtils.getPopularMovieDbUrl();
 
-    if(movieDBJSONUrl==null){
-        showError("MovieJSON is null");
-        return;
-    }
+            if (movieDBJSONUrl == null) {
+                showError("MovieJSON is null");
+                return;
+            }
 
-    MovieDbQueryTask task = new MovieDbQueryTask();
-    task.execute(movieDBJSONUrl);
+            MovieDbQueryTask task = new MovieDbQueryTask();
+            task.execute(movieDBJSONUrl);
 
-        recyclerView = findViewById(R.id.recyclerView);
 
-        GridLayoutManager layoutManager = new GridLayoutManager(this,2);
-        recyclerView.setLayoutManager(layoutManager);
+            recyclerView = findViewById(R.id.recyclerView);
 
-        recyclerView.setHasFixedSize(true);
+            GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
+            recyclerView.setLayoutManager(layoutManager);
 
-        mAdapter = new RecyclerviewAdapter();
-        recyclerView.setAdapter(mAdapter);
+            recyclerView.setHasFixedSize(true);
 
-       recyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(this, recyclerView ,new RecyclerItemClickListener.OnItemClickListener() {
-                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-                    @Override public void onItemClick(View view, int position) {
+            mAdapter = new RecyclerviewAdapter();
+            recyclerView.setAdapter(mAdapter);
 
-                        final Rect viewRect = new Rect();
-                        view.getGlobalVisibleRect(viewRect);
+            recyclerView.addOnItemTouchListener(
+                    new RecyclerItemClickListener(this, recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
+                        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                        @Override
+                        public void onItemClick(View view, int position) {
 
-                        // create Explode transition with epicenter
-                        Transition explode = new Explode();
-                                explode.setEpicenterCallback(new Transition.EpicenterCallback() {
-                                    @Override
-                                    public Rect onGetEpicenter(Transition transition) {
-                                        return viewRect;
-                                    }
-                                });
-                        explode.setDuration(1000);
-                        TransitionManager.beginDelayedTransition(recyclerView, explode);
+                            Log.d("tag", "" + position);
 
-                        // remove all views from Recycler View
-//                        recyclerView.setAdapter(null);
+                            final Rect viewRect = new Rect();
+                            view.getGlobalVisibleRect(viewRect);
+
+                            // create Explode transition with epicenter
+                            Transition explode = new Explode();
+                            explode.setEpicenterCallback(new Transition.EpicenterCallback() {
+                                @Override
+                                public Rect onGetEpicenter(Transition transition) {
+                                    return viewRect;
+                                }
+                            });
+                            explode.setDuration(1000);
+                            TransitionManager.beginDelayedTransition(recyclerView, explode);
+
+                            // remove all views from Recycler View
+                            recyclerView.setAdapter(null);
+
 
 //                        try{
 //                            Thread.sleep(2000);
@@ -117,28 +123,45 @@ public class MainActivity extends AppCompatActivity {
 //                            e.printStackTrace();
 //                        }
 
-                    }
+                        }
 
-                    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+                        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 
-                    @Override public void onLongItemClick(View view, int position) {
+                        @Override
+                        public void onLongItemClick(View view, int position) {
 
-                        //TODO get that specific image using position
+                            //TODO get that specific image using position
 
-                        ImageView imageView = findViewById(R.id.imageView);
+                            ImageView imageView = findViewById(R.id.imageView);
 
-                        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.zoom_in_animation);
-                        imageView.startAnimation(animation);
+                            Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.zoom_in_animation);
+                            imageView.startAnimation(animation);
 
 
+                        }
+                    })
+            );
+        }
 
-                    }
-                })
-        );
+
+    public Boolean isInternetActive()
+    {
+
+
+        Boolean internet = true;
+        ConnectivityManager connectionManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        wifiCheck = connectionManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+        mobileDataCheck = connectionManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        if (!(wifiCheck.isConnected()) || !(mobileDataCheck.isConnected())) {
+            Toast.makeText(this, "Please connect to the Internet", Toast.LENGTH_LONG).show();
+
+            internet = false;
+        }
+        return internet;
 
     }
-
 
 
 
