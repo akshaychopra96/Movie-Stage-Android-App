@@ -1,6 +1,7 @@
 package com.example.akshay.moviestageapp;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -52,19 +53,20 @@ public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapte
         public RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
             movieImage = itemView.findViewById(R.id.imageView);
-//            movieText = itemView.findViewById(R.id.textView);
         }
 
         void bind(int listIndex) {
 
                 try {
+
                     Picasso.get()
                             .load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(MainActivity.movieObject.getImage().get(listIndex))))
-                            .placeholder(R.drawable.ic_launcher_background)
+                            .placeholder(R.drawable.progress_animation)
+                            .resize(0,200)
                             .error(R.drawable.ic_launcher_background)
                             .into(movieImage);
-                    Log.d("tag",String.valueOf(NetworkUtils.getImageOfMovieDbUrl(MainActivity.movieObject.getImage().get(listIndex))));
-//                    movieText.setText(MainActivity.movieObject.getOriginalTitle().get(listIndex));
+
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
