@@ -15,6 +15,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         {
             Toast.makeText(context, "Connected to Internet",Toast.LENGTH_LONG).show();
             Intent i = new Intent(context,MainActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(i);
         }
         else

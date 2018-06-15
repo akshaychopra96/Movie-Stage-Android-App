@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
@@ -42,6 +43,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.akshay.moviestageapp.Utilities.JsonUtils;
@@ -52,6 +54,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
@@ -69,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
     Spinner spinner;
 
     CircleProgress progressBar;
+    static boolean secondActivityVisited=false;
+
+    TextView dynaText;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 
@@ -77,9 +83,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         progressBar =  findViewById(R.id.progressBar);
-
         relativeLayout = findViewById(R.id.mainActivityRootLayout);
 
         URL movieDBJSONUrl = NetworkUtils.getPopularMovieDbUrl();
@@ -113,7 +117,16 @@ public class MainActivity extends AppCompatActivity {
 
                                     @Override
                                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+
+                                        dynaText = new TextView(getApplicationContext());
+
+                                        dynaText.setText("Details loading... ");
+                                        dynaText.setTextSize(30);
+
+                                        relativeLayout.addView(dynaText);
+
                                         relativeLayout.setBackground(new BitmapDrawable(getResources(), bitmap));
+
                                     }
 
                                     @Override
@@ -163,7 +176,6 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 }, 200);
 
-                                recyclerViewInit();
 
                             }
 
@@ -182,8 +194,7 @@ public class MainActivity extends AppCompatActivity {
 
                             }
                         });
-
-                        explode.setDuration(1000);
+                        explode.setDuration(1200);
                         TransitionManager.beginDelayedTransition(recyclerView, explode);
 
                         // remove all views from Recycler View
@@ -196,21 +207,12 @@ public class MainActivity extends AppCompatActivity {
                     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 
                     @Override
-                    public void onLongItemClick(View view, int position) {
-
-                        //TODO get that specific image using position
-
-                        ImageView imageView = findViewById(R.id.imageView);
-
-                        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.zoom_in_animation);
-                        imageView.startAnimation(animation);
-
+                    public void onLongItemClick(View view, final int position) {
 
                     }
                 })
         );
     }
-
 
     public void recyclerViewInit() {
 
@@ -220,35 +222,15 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
 
         mAdapter = new RecyclerviewAdapter();
+
+        mAdapter.notifyDataSetChanged();
+
         recyclerView.setAdapter(mAdapter);
 
 
     }
 
-
-
-    public Boolean isInternetActive()
-    {
-
-
-        Boolean internet = true;
-        ConnectivityManager connectionManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        wifiCheck = connectionManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-        mobileDataCheck = connectionManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        if (!(wifiCheck.isConnected()) || !(mobileDataCheck.isConnected())) {
-            Toast.makeText(this, "Please connect to the Internet", Toast.LENGTH_LONG).show();
-
-            internet = false;
-        }
-        return internet;
-
-    }
-
-
-
     public class MovieDbQueryTask extends AsyncTask<URL,Integer,String>{
-
 
         @Override
         protected void onPreExecute() {
@@ -308,7 +290,6 @@ public class MainActivity extends AppCompatActivity {
 
             movieObject = JsonUtils.parseMoiveJson(s);
 
-
             if(movieObject == null){
                 showError("movie Object is null");
                 return;
@@ -358,6 +339,8 @@ public class MainActivity extends AppCompatActivity {
                             showError("MovieJSON is null");
                         }
 
+                        recyclerView.setAdapter(null);
+
                         task = new MovieDbQueryTask();
                         task.execute(movieDBJSONUrl);
 
@@ -371,6 +354,8 @@ public class MainActivity extends AppCompatActivity {
                         if (topRatedMovieDbUrl == null) {
                             showError("MovieJSON is null");
                         }
+
+                        recyclerView.setAdapter(null);
 
                         task = new MovieDbQueryTask();
                         task.execute(topRatedMovieDbUrl);
@@ -394,10 +379,21 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(secondActivityVisited) {
+            dynaText.setVisibility(View.INVISIBLE);
+            recyclerViewInit();
+        }
+
+    }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         this.finish();
+        super.onBackPressed();
+
     }
 }

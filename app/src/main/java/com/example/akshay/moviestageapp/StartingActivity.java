@@ -10,6 +10,9 @@ import com.squareup.picasso.Picasso;
 
 public class StartingActivity extends AppCompatActivity {
 
+    final NetworkChangeReceiver networkC = new NetworkChangeReceiver();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,9 +24,21 @@ public class StartingActivity extends AppCompatActivity {
                 .load(R.drawable.nointernet)
                 .into(noInternetImageView);
 
+    }
 
-        NetworkChangeReceiver networkC = new NetworkChangeReceiver();
-        registerReceiver(networkC, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    @Override
+    protected void onResume() {
+        super.onResume();
 
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkC,intentFilter);
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(networkC);
     }
 }

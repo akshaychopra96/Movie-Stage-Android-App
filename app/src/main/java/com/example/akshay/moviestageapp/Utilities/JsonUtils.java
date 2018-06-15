@@ -56,7 +56,7 @@ public class JsonUtils {
                 posterURL.add(jsonObjectArray[i].getString(KEY_IMAGE_URL));
                 releaseDate.add(jsonObjectArray[i].getString(KEY_RELEASE_DATE));
 
-//                Log.d("tag",originalTitle.get(i));
+                Log.d("tag",posterURL.get(i));
 
             }
 

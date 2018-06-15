@@ -14,7 +14,10 @@
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
         </activity>
-        <activity android:name=".MovieDetailsActivity" />
+        <activity android:name=".MovieDetailsActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            />
 
         <receiver android:name=".NetworkChangeReceiver">
             <intent-filter>
@@ -22,7 +25,9 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".StartingActivity">
+        <activity android:name=".StartingActivity"
+            android:noHistory="true"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

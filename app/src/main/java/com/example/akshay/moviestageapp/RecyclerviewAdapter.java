@@ -11,7 +11,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.akshay.moviestageapp.Utilities.NetworkUtils;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 
@@ -59,11 +61,11 @@ public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapte
 
                 try {
 
+
+//
                     Picasso.get()
                             .load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(MainActivity.movieObject.getImage().get(listIndex))))
                             .placeholder(R.drawable.progress_animation)
-                            .resize(0,200)
-                            .error(R.drawable.ic_launcher_background)
                             .into(movieImage);
 
 
