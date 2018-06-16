@@ -17,6 +17,7 @@ public class Movie {
     private ArrayList<String> plotSynopsis;
     private ArrayList<String> userRating;
     private ArrayList<String> releaseDate;
+    private ArrayList<String> backdropImage;
 
     /**
      * No args constructor for use in serialization
@@ -24,12 +25,13 @@ public class Movie {
     public Movie() {
     }
 
-    public Movie(ArrayList<String> originalTitle, ArrayList<String> posterImage, ArrayList<String> plotSynopsis,ArrayList<String> userRating, ArrayList<String> releaseDate) {
+    public Movie(ArrayList<String> originalTitle, ArrayList<String> posterImage, ArrayList<String> plotSynopsis,ArrayList<String> userRating, ArrayList<String> releaseDate, ArrayList<String> backdropImage) {
         this.originalTitle= originalTitle;
         this.posterImage = posterImage;
         this.plotSynopsis= plotSynopsis;
         this.userRating= userRating;
         this.releaseDate = releaseDate;
+        this.backdropImage = backdropImage;
     }
 
     public ArrayList<String> getOriginalTitle() {
@@ -71,4 +73,7 @@ public class Movie {
     public void setReleaseDate(ArrayList<String> releaseDate) {
         this.releaseDate= releaseDate;
     }
+
+    public ArrayList<String> getBackdropImage() {return  backdropImage;}
+
 }

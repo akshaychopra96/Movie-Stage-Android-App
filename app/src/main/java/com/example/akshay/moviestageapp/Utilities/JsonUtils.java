@@ -20,12 +20,14 @@ public class JsonUtils {
         ArrayList<String> releaseDate;
         ArrayList<String> posterURL;
         ArrayList<String> plotSynopsis;
+        ArrayList<String> backdropURL;
 
         final String KEY_ORIGINAL_TITLE="original_title";
         final String KEY_PLOT_SYNOPSIS="overview";
         final String KEY_USER_RATING="vote_average";
         final String KEY_IMAGE_URL="poster_path";
         final String KEY_RELEASE_DATE="release_date";
+        final String KEY_BACKDROP_URL="backdrop_path";
 
         Movie movie = null;
 
@@ -43,6 +45,7 @@ public class JsonUtils {
             releaseDate = new ArrayList<>();
             posterURL = new ArrayList<>();
             plotSynopsis = new ArrayList<>();
+            backdropURL = new ArrayList<>();
 
             JSONObject[] jsonObjectArray = new JSONObject[resultsArray.length()];
 
@@ -55,15 +58,14 @@ public class JsonUtils {
                 userRating.add(jsonObjectArray[i].getString(KEY_USER_RATING));
                 posterURL.add(jsonObjectArray[i].getString(KEY_IMAGE_URL));
                 releaseDate.add(jsonObjectArray[i].getString(KEY_RELEASE_DATE));
-
-                Log.d("tag",posterURL.get(i));
+                backdropURL.add(jsonObjectArray[i].getString(KEY_BACKDROP_URL));
 
             }
 
 
             //Getting name JSONObject from the Root JSONObject
 
-            movie= new Movie(originalTitle,posterURL,plotSynopsis,userRating,releaseDate);
+            movie= new Movie(originalTitle,posterURL,plotSynopsis,userRating,releaseDate,backdropURL);
 
             return movie;
 

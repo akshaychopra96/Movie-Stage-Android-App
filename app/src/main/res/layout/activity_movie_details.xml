@@ -4,7 +4,9 @@
     android:id="@+id/homeactivitycoordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:background="#ffffff"
+    >
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar_layout"
@@ -13,26 +15,22 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
         <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/cexamplefourcollapsing"
+            android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
+            android:layout_height="wrap_content"
             app:contentScrim="@color/colorPrimary"
             android:fitsSystemWindows="true"
             android:minHeight="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-
-
             <ImageView
-                android:id="@+id/image_iv2"
+                android:id="@+id/image_iv"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
-                android:layout_margin="2dp"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_rotate"
                 />
-
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/appbar"
@@ -50,16 +48,107 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="28sp"
-            android:lineSpacingExtra="8dp"
-            android:text="HELLO"
-            android:padding="16dp" />
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="#ffffff"
+            >
+
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/card_view"
+                xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                card_view:cardBackgroundColor="#ffffff"
+                card_view:cardCornerRadius="10dp"
+                card_view:cardElevation="5dp"
+                card_view:cardUseCompatPadding="true">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    >
+
+                    <ImageView
+                        android:id="@+id/poster_iv"
+                        android:tag="image_tag"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        />
+
+                    <TextView
+                        android:id="@+id/title_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:hint="Title"
+                        android:textColor="#000000"
+                        android:drawablePadding="8dp"
+                        android:drawableLeft="@drawable/ic_local_movies"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_margin="8dp"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:fontFamily="serif"
+                        android:layout_toRightOf="@id/poster_iv"
+                        />
+
+                    <TextView
+                        android:id="@+id/userRating_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="HELLLO"
+                        android:drawableLeft="@drawable/ic_star"
+                        android:drawablePadding="8dp"
+                        android:textSize="18sp"
+                        android:layout_below="@id/title_tv"
+                        android:layout_margin="8dp"
+                        android:layout_toRightOf="@id/poster_iv"
+                        android:textStyle="bold"
+                        android:fontFamily="serif"
+
+                        />
+
+
+                    <TextView
+                        android:id="@+id/releaseDate_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="HELLLO"
+                        android:drawablePadding="8dp"
+                        android:layout_margin="8dp"
+                        android:textSize="18sp"
+                        android:drawableLeft="@drawable/ic_date"
+                        android:layout_toRightOf="@id/poster_iv"
+                        android:layout_below="@id/userRating_tv"
+                        android:textStyle="bold"
+                        android:fontFamily="serif"
+                        />
+
+
+                </RelativeLayout>
+
+            </android.support.v7.widget.CardView>
 
 
 
+            <TextView
+                android:id="@+id/plotSynopsis_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="plot synopsis"
+                android:textSize="22sp"
+                android:textStyle="italic"
+                android:textColor="#0288D1"
+                android:fontFamily="sans-serif"
+                android:layout_margin="16dp"
+                />
+
+
+        </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>
 

@@ -22,7 +22,8 @@ public class NetworkUtils {
     final static String PARAM_API_KEY_QUERY = "api_key";
 
     final static String IMAGE_BASE_URL = "http://image.tmdb.org/t/p";
-    final static String IMAGE_SIZE_PATH = "w185";
+    final static String IMAGE_SIZE_PATH = "w342";
+    final static String BACKDROP_IMAGE_SIZE_PATH = "w500";
 
 
     final static String API_KEY = "90d8eb35baac73b15f9eb22037556bf5";
@@ -61,18 +62,32 @@ public class NetworkUtils {
 
         try {
             imageOfMovieDbUrl = new URL(builtUri.toString());
-//            String encodedUrl = URLEncoder.encode(imageOfMovieDbUrl.toString(), "UTF-8");
-
-//                        Log.d("tag",""+encodedUrl);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-//         catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//        }
 
         return imageOfMovieDbUrl;
     }
+
+    public static URL getBackdropImageOfMovieDbUrl(String imageURL){
+
+        Uri builtUri = Uri.parse(IMAGE_BASE_URL).buildUpon()
+                .appendPath(BACKDROP_IMAGE_SIZE_PATH)
+                .appendEncodedPath(imageURL)
+                .build();
+
+        URL backdropImageOfMovieDbUrl=null;
+
+        try {
+            backdropImageOfMovieDbUrl = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return backdropImageOfMovieDbUrl;
+    }
+
+
 
     public static URL getTopRatedMovieDbUrl(){
 
