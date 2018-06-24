@@ -6,11 +6,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
 
+import com.example.akshay.moviestageapp.InternetConnection.NetworkChangeReceiver;
 import com.squareup.picasso.Picasso;
 
 public class StartingActivity extends AppCompatActivity {
 
     final NetworkChangeReceiver networkC = new NetworkChangeReceiver();
+    private boolean isRegistered = false;
 
 
     @Override
@@ -32,13 +34,17 @@ public class StartingActivity extends AppCompatActivity {
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(networkC,intentFilter);
-
+        this.registerReceiver(networkC,intentFilter);
+        isRegistered = true;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(networkC);
+
+        if (isRegistered) {
+            this.unregisterReceiver(networkC);
+            isRegistered = false;
+        }
     }
 }

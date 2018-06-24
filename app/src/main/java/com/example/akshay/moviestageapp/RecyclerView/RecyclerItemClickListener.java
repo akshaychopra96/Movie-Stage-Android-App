@@ -1,4 +1,4 @@
-package com.example.akshay.moviestageapp;
+package com.example.akshay.moviestageapp.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;

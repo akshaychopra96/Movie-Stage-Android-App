@@ -1,79 +1,244 @@
 package com.example.akshay.moviestageapp.model;
 
-import android.util.Log;
 
-import com.example.akshay.moviestageapp.Utilities.NetworkUtils;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-import java.net.URL;
-import java.util.ArrayList;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
-public class Movie {
 
+public class Movie implements Parcelable {
 
-
-    private ArrayList<String> originalTitle;
-    private ArrayList<String> posterImage;
-    private ArrayList<String> plotSynopsis;
-    private ArrayList<String> userRating;
-    private ArrayList<String> releaseDate;
-    private ArrayList<String> backdropImage;
+    @SerializedName("vote_count")
+    @Expose
+    private Integer voteCount;
+    @SerializedName("id")
+    @Expose
+    private Integer id;
+    @SerializedName("video")
+    @Expose
+    private Boolean video;
+    @SerializedName("vote_average")
+    @Expose
+    private Float voteAverage;
+    @SerializedName("title")
+    @Expose
+    private String title;
+    @SerializedName("popularity")
+    @Expose
+    private Float popularity;
+    @SerializedName("poster_path")
+    @Expose
+    private String posterPath;
+    @SerializedName("original_language")
+    @Expose
+    private String originalLanguage;
+    @SerializedName("original_title")
+    @Expose
+    private String originalTitle;
+    @SerializedName("genre_ids")
+    @Expose
+    private List<Integer> genreIds = null;
+    @SerializedName("backdrop_path")
+    @Expose
+    private String backdropPath;
+    @SerializedName("adult")
+    @Expose
+    private Boolean adult;
+    @SerializedName("overview")
+    @Expose
+    private String overview;
+    @SerializedName("release_date")
+    @Expose
+    private String releaseDate;
 
     /**
-     * No args constructor for use in serialization
+     *
+     * @param genreIds
+     * @param id
+     * @param title
+     * @param releaseDate
+     * @param overview
+     * @param posterPath
+     * @param originalTitle
+     * @param voteAverage
+     * @param originalLanguage
+     * @param adult
+     * @param backdropPath
+     * @param voteCount
+     * @param video
+     * @param popularity
      */
-    public Movie() {
-    }
-
-    public Movie(ArrayList<String> originalTitle, ArrayList<String> posterImage, ArrayList<String> plotSynopsis,ArrayList<String> userRating, ArrayList<String> releaseDate, ArrayList<String> backdropImage) {
-        this.originalTitle= originalTitle;
-        this.posterImage = posterImage;
-        this.plotSynopsis= plotSynopsis;
-        this.userRating= userRating;
+    public Movie(Integer voteCount, Integer id, Boolean video, Float voteAverage, String title, Float popularity, String posterPath, String originalLanguage, String originalTitle, List<Integer> genreIds, String backdropPath, Boolean adult, String overview, String releaseDate) {
+        super();
+        this.voteCount = voteCount;
+        this.id = id;
+        this.video = video;
+        this.voteAverage = voteAverage;
+        this.title = title;
+        this.popularity = popularity;
+        this.posterPath = posterPath;
+        this.originalLanguage = originalLanguage;
+        this.originalTitle = originalTitle;
+        this.genreIds = genreIds;
+        this.backdropPath = backdropPath;
+        this.adult = adult;
+        this.overview = overview;
         this.releaseDate = releaseDate;
-        this.backdropImage = backdropImage;
     }
 
-    public ArrayList<String> getOriginalTitle() {
+    public Integer getVoteCount() {
+        return voteCount;
+    }
+
+    public void setVoteCount(Integer voteCount) {
+        this.voteCount = voteCount;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Boolean getVideo() {
+        return video;
+    }
+
+    public void setVideo(Boolean video) {
+        this.video = video;
+    }
+
+    public Float getVoteAverage() {
+        return voteAverage;
+    }
+
+    public void setVoteAverage(Float voteAverage) {
+        this.voteAverage = voteAverage;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public Float getPopularity() {
+        return popularity;
+    }
+
+    public void setPopularity(Float popularity) {
+        this.popularity = popularity;
+    }
+
+    public String getPosterPath() {
+        return posterPath;
+    }
+
+    public void setPosterPath(String posterPath) {
+        this.posterPath = posterPath;
+    }
+
+    public String getOriginalLanguage() {
+        return originalLanguage;
+    }
+
+    public void setOriginalLanguage(String originalLanguage) {
+        this.originalLanguage = originalLanguage;
+    }
+
+    public String getOriginalTitle() {
         return originalTitle;
     }
 
-    public void setOriginalTitle(ArrayList<String> originalTitle) {
-        this.originalTitle= originalTitle;
+    public void setOriginalTitle(String originalTitle) {
+        this.originalTitle = originalTitle;
     }
 
-    public ArrayList<String> getPlotSynopsis() {
-        return plotSynopsis;
+    public List<Integer> getGenreIds() {
+        return genreIds;
     }
 
-    public void setPlotSynopsis(ArrayList<String> plotSynopsis) {
-        this.plotSynopsis= plotSynopsis;
+    public void setGenreIds(List<Integer> genreIds) {
+        this.genreIds = genreIds;
     }
 
-    public ArrayList<String> getUserRating() {
-        return userRating;
+    public String getBackdropPath() {
+        return backdropPath;
     }
 
-    public void setUserRating(ArrayList<String> userRating) {
-        this.userRating= userRating;
+    public void setBackdropPath(String backdropPath) {
+        this.backdropPath = backdropPath;
     }
 
-    public ArrayList<String> getImage() {
-        return posterImage;
+    public Boolean getAdult() {
+        return adult;
     }
 
-    public void setImage(ArrayList<String> image) {
-        this.posterImage = image;
+    public void setAdult(Boolean adult) {
+        this.adult = adult;
     }
 
-    public ArrayList<String> getReleaseDate() {
+    public String getOverview() {
+        return overview;
+    }
+
+    public void setOverview(String overview) {
+        this.overview = overview;
+    }
+
+    public String getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(ArrayList<String> releaseDate) {
-        this.releaseDate= releaseDate;
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
     }
 
-    public ArrayList<String> getBackdropImage() {return  backdropImage;}
 
+    public Movie(Parcel parcel){
+        originalTitle = parcel.readString();
+        voteAverage = parcel.readFloat();
+        posterPath = parcel.readString();
+        backdropPath = parcel.readString();
+        releaseDate = parcel.readString();
+        overview = parcel.readString();
+        }
+
+    @Override
+    public int describeContents() {
+        return hashCode();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
+        dest.writeString(originalTitle);
+        dest.writeFloat(voteAverage);
+        dest.writeString(posterPath);
+        dest.writeString(backdropPath);
+        dest.writeString(releaseDate);
+        dest.writeString(overview);
+
+    }
+
+    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+
+        @Override
+        public Movie createFromParcel(Parcel parcel) {
+            return new Movie(parcel);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[0];
+        }
+    };
 }

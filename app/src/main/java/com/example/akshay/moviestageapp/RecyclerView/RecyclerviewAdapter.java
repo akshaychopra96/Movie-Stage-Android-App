@@ -1,25 +1,32 @@
-package com.example.akshay.moviestageapp;
+package com.example.akshay.moviestageapp.RecyclerView;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.example.akshay.moviestageapp.R;
 import com.example.akshay.moviestageapp.Utilities.NetworkUtils;
-import com.squareup.picasso.Callback;
+import com.example.akshay.moviestageapp.model.Movie;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 
 public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapter.RecyclerViewHolder> {
 
-    RecyclerviewAdapter(){}
+    Context context;
+    ArrayList<Movie> movies;
+
+    public RecyclerviewAdapter(ArrayList<Movie> movies, Context context){
+
+        this.movies = movies;
+        this.context = context;
+
+    }
 
     @NonNull
     @Override
@@ -32,7 +39,6 @@ public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapte
 
         View view = inflater.inflate(layoutIdForListItem, parent, shouldAttachToParentImmediately);
         RecyclerViewHolder viewHolder = new RecyclerViewHolder(view);
-
 
         return viewHolder;
     }
@@ -50,7 +56,6 @@ public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapte
     public class RecyclerViewHolder extends  RecyclerView.ViewHolder{
 
         ImageView movieImage;
-        TextView movieText;
 
         public RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -60,14 +65,10 @@ public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapte
         void bind(int listIndex) {
 
                 try {
-
-
-//
                     Picasso.get()
-                            .load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(MainActivity.movieObject.getImage().get(listIndex))))
+                            .load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(movies.get(listIndex).getPosterPath(),NetworkUtils.IMAGE_SIZE_PATH)))
                             .placeholder(R.drawable.progress_animation)
                             .into(movieImage);
-
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -75,7 +76,5 @@ public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapte
 
         }
     }
-
-
 
 }

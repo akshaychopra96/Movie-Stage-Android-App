@@ -16,45 +16,20 @@ import java.util.Scanner;
 
 public class NetworkUtils {
 
-    final static String MOVIE_DB_BASE_URL = "http://api.themoviedb.org/3/movie";
-    final static String MOVIE_POPULAR_PATH = "popular";
-    final static String MOVIE_TOP_RATED_PATH = "top_rated";
-    final static String PARAM_API_KEY_QUERY = "api_key";
+     final static String IMAGE_BASE_URL = "http://image.tmdb.org/t/p";
+    public final static String IMAGE_SIZE_PATH = "w342";
+    public final static String BACKDROP_IMAGE_SIZE_PATH = "w500";
 
-    final static String IMAGE_BASE_URL = "http://image.tmdb.org/t/p";
-    final static String IMAGE_SIZE_PATH = "w342";
-    final static String BACKDROP_IMAGE_SIZE_PATH = "w500";
+    // Movie API URL example
+    // http:api.themoviedb.org/3/movie/popular?api_key=[YOUR_API_KEY]
 
+    // Image URL example
+    // http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg
 
-    final static String API_KEY = "90d8eb35baac73b15f9eb22037556bf5";
-
-//     http:api.themoviedb.org/3/movie/popular?api_key=[YOUR_API_KEY]
-
-    public static URL getPopularMovieDbUrl(){
-
-        Uri builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
-                .appendPath(MOVIE_POPULAR_PATH)
-                .appendQueryParameter(PARAM_API_KEY_QUERY,API_KEY)
-                .build();
-
-        URL movieDbUrl=null;
-
-        try {
-            movieDbUrl = new URL(builtUri.toString());
-//            Log.d("tag",""+movieDbUrl);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
-        return movieDbUrl;
-    }
-
-    //http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg
-
-    public static URL getImageOfMovieDbUrl(String imageURL){
+    public static URL getImageOfMovieDbUrl(String imageURL,String imagePath){
 
         Uri builtUri = Uri.parse(IMAGE_BASE_URL).buildUpon()
-                .appendPath(IMAGE_SIZE_PATH)
+                .appendPath(imagePath)
                 .appendEncodedPath(imageURL)
                 .build();
 
@@ -68,79 +43,4 @@ public class NetworkUtils {
 
         return imageOfMovieDbUrl;
     }
-
-    public static URL getBackdropImageOfMovieDbUrl(String imageURL){
-
-        Uri builtUri = Uri.parse(IMAGE_BASE_URL).buildUpon()
-                .appendPath(BACKDROP_IMAGE_SIZE_PATH)
-                .appendEncodedPath(imageURL)
-                .build();
-
-        URL backdropImageOfMovieDbUrl=null;
-
-        try {
-            backdropImageOfMovieDbUrl = new URL(builtUri.toString());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
-        return backdropImageOfMovieDbUrl;
-    }
-
-
-
-    public static URL getTopRatedMovieDbUrl(){
-
-        Uri builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
-                .appendPath(MOVIE_TOP_RATED_PATH)
-                .appendQueryParameter(PARAM_API_KEY_QUERY,API_KEY)
-                .build();
-
-        URL movieDbUrl=null;
-
-        try {
-            movieDbUrl = new URL(builtUri.toString());
-//            Log.d("tag",""+movieDbUrl);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
-        return movieDbUrl;
-    }
-
-    public static String getResponseFromHttpUrl(URL url) throws IOException {
-
-        HttpURLConnection urlConnection = null;
-        String current="";
-        try {
-            //Create a connection with it to fetch data from that url
-            urlConnection = (HttpURLConnection) url.openConnection();
-
-            //Using InputStream to get data from the connected URL
-            InputStream inputStream = urlConnection.getInputStream();
-
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-
-            //Fetching data from the URL and storing it in a String called current
-            int data = inputStreamReader.read();
-            while (data != -1) {
-                current += (char) data;
-                data = inputStreamReader.read();
-            }
-        }
-
-        catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        finally {
-            urlConnection.disconnect();
-        }
-        return current;
-    }
-
 }

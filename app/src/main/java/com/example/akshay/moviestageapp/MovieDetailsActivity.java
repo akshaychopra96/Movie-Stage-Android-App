@@ -1,24 +1,29 @@
 package com.example.akshay.moviestageapp;
 
 import android.content.Intent;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
+import com.example.akshay.moviestageapp.InternetConnection.NetworkChangeReceiver;
 import com.example.akshay.moviestageapp.Utilities.NetworkUtils;
+import com.example.akshay.moviestageapp.model.Movie;
 import com.squareup.picasso.Picasso;
 
-import static com.example.akshay.moviestageapp.MainActivity.movieObject;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 public class MovieDetailsActivity extends AppCompatActivity {
 
+    public static final String EXTRA_PARCEL = "extra_parcel";
     public static final String EXTRA_POSITION = "extra_position";
     private static final int DEFAULT_POSITION = -1;
 
@@ -27,6 +32,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
     TextView userRatingTV,plotSynopsisTV,releaseDateTV,titleTV;
     ImageView backdropIV,posterIV;
 
+    int position;
+
+    CoordinatorLayout coordinatorLayout;
+
+    Movie movieObject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +48,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
             closeOnError();
         }
 
-        int position = intent.getIntExtra(EXTRA_POSITION, DEFAULT_POSITION);
+        MainActivity.secondActivityVisited = true;
+        NetworkChangeReceiver.otherActivityVisited  =true;
+
+        position = intent.getIntExtra(EXTRA_POSITION, DEFAULT_POSITION);
 
         if (position == DEFAULT_POSITION) {
             // EXTRA_POSITION not found in intent
@@ -46,37 +59,57 @@ public class MovieDetailsActivity extends AppCompatActivity {
             return;
         }
 
+        movieObject = intent.getParcelableExtra(EXTRA_PARCEL);
+
+        if (movieObject == null) {
+            // movieObject not found in intent
+            closeOnError();
+            return;
+        }
+
+        init();
+
         CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
         collapsingToolbarLayout.setTitleEnabled(false);
 
         toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setTitle(movieObject.getOriginalTitle().get(position));
 
-        init();
+        setData();
 
-        MainActivity.secondActivityVisited = true;
 
-        String date = movieObject.getReleaseDate().get(position);
-        String[] split = date.split("-");
-        String dateFinal = split[2]+"-"+split[1]+"-"+split[0];
+    }
 
-        titleTV.setText(movieObject.getOriginalTitle().get(position));
-        plotSynopsisTV.setText(movieObject.getPlotSynopsis().get(position));
-        userRatingTV.setText(movieObject.getUserRating().get(position)+" / 10");
-        releaseDateTV.setText(dateFinal);
-
+    private void setData() {
 
         Picasso.get()
-                .load(String.valueOf(NetworkUtils.getBackdropImageOfMovieDbUrl(movieObject.getBackdropImage().get(position))))
+                .load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(movieObject.getBackdropPath(),NetworkUtils.BACKDROP_IMAGE_SIZE_PATH)))
                 .placeholder(R.drawable.progress_animation)
+                .error(R.drawable.image_not_found)
                 .into(backdropIV);
 
         Picasso.get()
-                .load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(movieObject.getImage().get(position))))
+                .load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(movieObject.getPosterPath(),NetworkUtils.IMAGE_SIZE_PATH)))
                 .into(posterIV);
 
+        titleTV.setText(movieObject.getOriginalTitle());
+        plotSynopsisTV.setText(movieObject.getOverview());
+        userRatingTV.setText(movieObject.getVoteAverage()+" / 10");
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+        Date date = null;
+
+        try {
+            date = dateFormat.parse(movieObject.getReleaseDate());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        DateFormat finalDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+        String formattedDate = finalDateFormat.format(date);
+
+         releaseDateTV.setText(formattedDate);
 
     }
 
@@ -89,6 +122,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         backdropIV = findViewById(R.id.image_iv);
         posterIV = findViewById(R.id.poster_iv);
+
+        coordinatorLayout =  findViewById(R.id.homeactivitycoordinator);
+
     }
 
     @Override

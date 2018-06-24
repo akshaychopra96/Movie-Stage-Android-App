@@ -1,4 +1,5 @@
 <resources>
-    <string name="app_name">Movie Stage App</string>
-    <string name="noInternet">Please connect to internet and we will take care of the rest</string>
+    <string name="app_name">Movie Mania</string>
+    <string name="noInternet">Please connect to the Internet </string>
+    <string name="imageContentDescription">Movie Poster</string>
 </resources>

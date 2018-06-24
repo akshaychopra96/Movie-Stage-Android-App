@@ -1,4 +1,4 @@
-package com.example.akshay.moviestageapp;
+package com.example.akshay.moviestageapp.InternetConnection;
 
 
 import android.content.BroadcastReceiver;
@@ -6,7 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
+import com.example.akshay.moviestageapp.MainActivity;
+import com.example.akshay.moviestageapp.StartingActivity;
+
 public class NetworkChangeReceiver extends BroadcastReceiver {
+
+    public static boolean otherActivityVisited = false;
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
@@ -20,10 +25,13 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         }
         else
         {
-            Toast.makeText(context, "Please connect to the Internet",Toast.LENGTH_LONG).show();
-
+            if(otherActivityVisited == true){
+                otherActivityVisited = false;
+                Intent i = new Intent(context,StartingActivity.class);
+                context.startActivity(i);
+                context.unregisterReceiver(this);
+            }
         }
-
     }
 
     boolean checkInternet(Context context) {

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,6 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
+        android:contentDescription="@string/noInternet"
 
         />
 
@@ -21,9 +27,11 @@
         android:text="@string/noInternet"
         android:layout_gravity="top|center_horizontal"
         android:padding="30dp"
-        android:textSize="25sp"
+        android:textSize="22sp"
         android:textStyle="bold"
+        android:textColor="#000000"
         android:fontFamily="monospace"
         />
 
 </FrameLayout>
+</ScrollView>

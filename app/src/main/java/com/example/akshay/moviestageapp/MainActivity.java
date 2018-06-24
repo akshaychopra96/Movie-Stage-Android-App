@@ -1,80 +1,80 @@
 package com.example.akshay.moviestageapp;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
+
 import android.os.Build;
 import android.os.Handler;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.transition.ChangeBounds;
-import android.transition.ChangeImageTransform;
 import android.transition.Explode;
 import android.transition.Transition;
 import android.transition.*;
-import android.transition.TransitionSet;
 import android.util.Log;
+import android.util.Property;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.akshay.moviestageapp.Utilities.JsonUtils;
+import com.example.akshay.moviestageapp.InternetConnection.NetworkChangeReceiver;
+import com.example.akshay.moviestageapp.RecyclerView.RecyclerItemClickListener;
+import com.example.akshay.moviestageapp.RecyclerView.RecyclerviewAdapter;
+import com.example.akshay.moviestageapp.Rest.ApiClient;
+import com.example.akshay.moviestageapp.Rest.ApiInterface;
 import com.example.akshay.moviestageapp.Utilities.NetworkUtils;
 import com.example.akshay.moviestageapp.model.Movie;
-import com.github.lzyzsd.circleprogress.CircleProgress;
+import com.example.akshay.moviestageapp.model.MovieResponse;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
+import com.wang.avi.AVLoadingIndicatorView;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    static Movie movieObject;
-    private RecyclerviewAdapter mAdapter;
-    private RecyclerView recyclerView;
-    RelativeLayout relativeLayout;
+    @BindView(R.id.recyclerView) RecyclerView recyclerView;
 
-    NetworkInfo wifiCheck;
-    NetworkInfo mobileDataCheck;
-
-    MovieDbQueryTask task;
+    @BindView(R.id.mainActivityRootLayout) RelativeLayout relativeLayout;
 
     Spinner spinner;
 
-    CircleProgress progressBar;
-    static boolean secondActivityVisited=false;
+    @BindView(R.id.progressBar) AVLoadingIndicatorView progressBar;
 
-    TextView dynaText;
+    static boolean secondActivityVisited = false;
+
+    final static String API_KEY =  BuildConfig.API_KEY;
+    ApiInterface apiService;
+    List<Movie> movies;
+
+    int MOVIE_CATEGORY = 0;
+
+    private static final int POPULAR_MOVIES = 0;
+    private static final int TOP_RATED_MOVIES = 1;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 
@@ -83,23 +83,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        progressBar =  findViewById(R.id.progressBar);
-        relativeLayout = findViewById(R.id.mainActivityRootLayout);
+        ButterKnife.bind(this);
 
-        URL movieDBJSONUrl = NetworkUtils.getPopularMovieDbUrl();
+        NetworkChangeReceiver.otherActivityVisited  =true;
 
-        if (movieDBJSONUrl == null) {
-//            showError("MovieJSON is null");
-            return;
-        }
+        apiService = ApiClient.getClient().create(ApiInterface.class);
 
-        task = new MovieDbQueryTask();
-        task.execute(movieDBJSONUrl);
+        Call<MovieResponse> call = apiService.getPopularMovies(API_KEY);
+        getPopularMovies(call);
 
+        final int spanCount = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? 4 : 2;
 
-        recyclerView = findViewById(R.id.recyclerView);
-
-        recyclerViewInit();
+        GridLayoutManager layoutManager = new GridLayoutManager(this, spanCount);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setHasFixedSize(true);
 
 
         recyclerView.addOnItemTouchListener(
@@ -110,34 +107,19 @@ public class MainActivity extends AppCompatActivity {
 
                     public void onItemClick(View view, final int position) {
 
-                        //TODO Showing movieobject as null
-
-                        Picasso.get().load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(movieObject.getImage().get(position))))
+                        Picasso.get().load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(movies.get(position).getPosterPath(),NetworkUtils.IMAGE_SIZE_PATH)))
                                 .into(new Target() {
 
                                     @Override
                                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-
-                                        dynaText = new TextView(getApplicationContext());
-
-                                        dynaText.setText("Details loading... ");
-                                        dynaText.setTextSize(30);
-
-                                        relativeLayout.addView(dynaText);
-
                                         relativeLayout.setBackground(new BitmapDrawable(getResources(), bitmap));
-
                                     }
 
                                     @Override
-                                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-
-                                    }
-
+                                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {}
 
                                     @Override
-                                    public void onPrepareLoad(final Drawable placeHolderDrawable) {
-                                    }
+                                    public void onPrepareLoad(final Drawable placeHolderDrawable) {}
                                 });
 
                         final Rect viewRect = new Rect();
@@ -154,9 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
                         explode.addListener(new Transition.TransitionListener() {
                             @Override
-                            public void onTransitionStart(Transition transition) {
-
-                            }
+                            public void onTransitionStart(Transition transition) {}
 
                             @Override
                             public void onTransitionEnd(Transition transition) {
@@ -164,43 +144,40 @@ public class MainActivity extends AppCompatActivity {
                                 new Handler().postDelayed(new Runnable() {
                                     public void run() {
 
-                     /* Create an intent that will start the main activity. */
+                                        /*
+                                        * EXTRA_POSITION is for passing the position of the item
+                                        * EXTRA_CATEGORY is for passing the category of the movies chosen
+                                         */
+
                                         Intent intent = new Intent(MainActivity.this, MovieDetailsActivity.class);
                                         intent.putExtra(MovieDetailsActivity.EXTRA_POSITION, position);
-                                        //SplashScreen.this.startActivity(mainIntent);
+                                        intent.putExtra(MovieDetailsActivity.EXTRA_PARCEL, movies.get(position));
                                         startActivity(intent);
 
-                     /* Apply our splash exit (fade out) and main
-                        entry (fade in) animation transitions. */
+                     /* For Main Activity exit --> fade out and
+                      * For Second Activity entry --> fade in animation transitions.
+                      */
                                         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                                     }
                                 }, 200);
 
-
                             }
 
                             @Override
-                            public void onTransitionCancel(Transition transition) {
-
-                            }
+                            public void onTransitionCancel(Transition transition) {}
 
                             @Override
-                            public void onTransitionPause(Transition transition) {
-
-                            }
+                            public void onTransitionPause(Transition transition) {}
 
                             @Override
-                            public void onTransitionResume(Transition transition) {
-
-                            }
+                            public void onTransitionResume(Transition transition) {}
                         });
+
                         explode.setDuration(1200);
                         TransitionManager.beginDelayedTransition(recyclerView, explode);
 
                         // remove all views from Recycler View
                         recyclerView.setAdapter(null);
-
-
                     }
 
                     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -214,102 +191,77 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    public void recyclerViewInit() {
 
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
-        recyclerView.setLayoutManager(layoutManager);
+    public void getPopularMovies(Call<MovieResponse> call) {
 
-        recyclerView.setHasFixedSize(true);
+        progressBarInit();
 
-        mAdapter = new RecyclerviewAdapter();
+        call.enqueue(new Callback<MovieResponse>() {
+            @Override
+            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
 
-        mAdapter.notifyDataSetChanged();
+                if (movies != null)
+                    movies.clear();
 
-        recyclerView.setAdapter(mAdapter);
+                movies = response.body().getResults();
+                recyclerView.setAdapter(new RecyclerviewAdapter((ArrayList<Movie>) movies, getApplicationContext()));
 
+                progressBarEnd();
 
-    }
+                recyclerView.setVisibility(View.VISIBLE);
 
-    public class MovieDbQueryTask extends AsyncTask<URL,Integer,String>{
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressBar.refreshDrawableState();
-            progressBar.setVisibility(View.VISIBLE);
-            progressBar.setUnfinishedColor(Color.parseColor("#FFFFFF"));
-            progressBar.setFinishedColor(Color.parseColor("#DD2C00"));
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
-        }
-
-        @Override
-        protected String doInBackground(URL... urls) {
-            URL searchUrl = urls[0];
-//            Log.d("tag",""+urls[0]);
-
-            String jsonFile = null;
-            try {
-                jsonFile = NetworkUtils.getResponseFromHttpUrl(searchUrl);
-            } catch (IOException e) {
-                e.printStackTrace();
+                MOVIE_CATEGORY = 0;
             }
 
-            for (int i=10;i<=100;i += 10)
-            {
-                try {
-                    Thread.sleep(200);
-                    publishProgress(i);
+            @Override
+            public void onFailure(Call<MovieResponse> call, Throwable t) {
+                Log.e("tag", t.toString());
 
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                Snackbar.make(relativeLayout, "Failed Loading List", Snackbar.LENGTH_LONG).show();
+            }
+        });
+    }
+
+        public void getTopRatedMovies(Call<MovieResponse> call) {
+
+            progressBarInit();
+
+            call.enqueue(new Callback<MovieResponse>() {
+                @Override
+                public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
+
+                    if(movies!=null)
+                        movies.clear();
+
+                    movies = response.body().getResults();
+                    recyclerView.setAdapter(new RecyclerviewAdapter((ArrayList<Movie>) movies, getApplicationContext()));
+
+                    progressBarEnd();
+
+                    recyclerView.setVisibility(View.VISIBLE);
+                    MOVIE_CATEGORY = 1;
                 }
-            }
 
-            return jsonFile;
+                @Override
+                public void onFailure(Call<MovieResponse> call, Throwable t) {
+                    Log.e("tag", t.toString());
 
+                    Snackbar.make(relativeLayout, "Failed Loading List", Snackbar.LENGTH_LONG).show();
+                }
+            });
         }
 
-        @Override
-        protected void onProgressUpdate(Integer... values) {
+    private void progressBarInit() {
 
-            progressBar.setProgress(values[0]);
-
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-
-            if(s == null){
-                showError("JSON file from onPostExecute is null");
-                return;
-            }
-
-
-            movieObject = JsonUtils.parseMoiveJson(s);
-
-            if(movieObject == null){
-                showError("movie Object is null");
-                return;
-            }
-
-          recyclerView.setVisibility(View.VISIBLE);
-
-            progressBar.setProgress(0);
-            progressBar.setVisibility(View.GONE);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
-        }
-
+        progressBar.setVisibility(View.VISIBLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
+    private void progressBarEnd() {
 
-    private void showError(String error) {
-
-        Toast.makeText(this,"Something is wrong: "+error,Toast.LENGTH_LONG).show();
-
+        progressBar.setVisibility(View.GONE);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
     @Override
@@ -323,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.spinner_list_item_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapter.setDropDownViewResource(R.layout.options_menu_spinner_layout);
 
         spinner.setAdapter(adapter);
 
@@ -332,51 +284,23 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
                 switch (position){
-                    case 0:
-                        URL movieDBJSONUrl = NetworkUtils.getPopularMovieDbUrl();
-
-                        if (movieDBJSONUrl == null) {
-                            showError("MovieJSON is null");
-                        }
-
-                        recyclerView.setAdapter(null);
-
-                        task = new MovieDbQueryTask();
-                        task.execute(movieDBJSONUrl);
-
-                        recyclerViewInit();
-
+                    case POPULAR_MOVIES:
+                        Call<MovieResponse> call0 = apiService.getPopularMovies(API_KEY);
+                        getPopularMovies(call0);
                         break;
-                    case 1:
 
-                        URL topRatedMovieDbUrl= NetworkUtils.getTopRatedMovieDbUrl();
-
-                        if (topRatedMovieDbUrl == null) {
-                            showError("MovieJSON is null");
-                        }
-
-                        recyclerView.setAdapter(null);
-
-                        task = new MovieDbQueryTask();
-                        task.execute(topRatedMovieDbUrl);
-
-                        recyclerViewInit();
-
-
+                    case TOP_RATED_MOVIES:
+                        Call<MovieResponse> call1 = apiService.getTopRatedMovies(API_KEY);
+                        getTopRatedMovies(call1);
                         break;
                 }
-
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
 
         return true;
-
-
     }
 
     @Override
@@ -384,10 +308,8 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         if(secondActivityVisited) {
-            dynaText.setVisibility(View.INVISIBLE);
-            recyclerViewInit();
+            recyclerView.setAdapter(new RecyclerviewAdapter((ArrayList<Movie>) movies, getApplicationContext()));
         }
-
     }
 
     @Override
@@ -396,4 +318,6 @@ public class MainActivity extends AppCompatActivity {
         super.onBackPressed();
 
     }
+
+
 }
