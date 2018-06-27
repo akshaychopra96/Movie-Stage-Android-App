@@ -10,8 +10,6 @@ import android.graphics.drawable.Drawable;
 
 import android.os.Build;
 import android.os.Handler;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
@@ -23,7 +21,6 @@ import android.transition.Explode;
 import android.transition.Transition;
 import android.transition.*;
 import android.util.Log;
-import android.util.Property;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -35,8 +32,8 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 
 import com.example.akshay.moviestageapp.InternetConnection.NetworkChangeReceiver;
-import com.example.akshay.moviestageapp.RecyclerView.RecyclerItemClickListener;
-import com.example.akshay.moviestageapp.RecyclerView.RecyclerviewAdapter;
+import com.example.akshay.moviestageapp.RecyclerView.MovieRecyclerViewAdapter;
+import com.example.akshay.moviestageapp.RecyclerView.MovieRecyclerItemClickListener;
 import com.example.akshay.moviestageapp.Rest.ApiClient;
 import com.example.akshay.moviestageapp.Rest.ApiInterface;
 import com.example.akshay.moviestageapp.Utilities.NetworkUtils;
@@ -75,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int POPULAR_MOVIES = 0;
     private static final int TOP_RATED_MOVIES = 1;
+    private static final int FAVOURITES = 2;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 
@@ -100,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         recyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(this, recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
+                new MovieRecyclerItemClickListener(this, recyclerView, new MovieRecyclerItemClickListener.OnItemClickListener() {
 
                     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                     @Override
@@ -204,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
                     movies.clear();
 
                 movies = response.body().getResults();
-                recyclerView.setAdapter(new RecyclerviewAdapter((ArrayList<Movie>) movies, getApplicationContext()));
+                recyclerView.setAdapter(new MovieRecyclerViewAdapter((ArrayList<Movie>) movies, getApplicationContext()));
 
                 progressBarEnd();
 
@@ -234,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
                         movies.clear();
 
                     movies = response.body().getResults();
-                    recyclerView.setAdapter(new RecyclerviewAdapter((ArrayList<Movie>) movies, getApplicationContext()));
+                    recyclerView.setAdapter(new MovieRecyclerViewAdapter((ArrayList<Movie>) movies, getApplicationContext()));
 
                     progressBarEnd();
 
@@ -293,6 +291,14 @@ public class MainActivity extends AppCompatActivity {
                         Call<MovieResponse> call1 = apiService.getTopRatedMovies(API_KEY);
                         getTopRatedMovies(call1);
                         break;
+
+                    case FAVOURITES:
+                        Intent intent = new Intent(getApplicationContext(),FavouriteActivity.class);
+                        intent.putExtra(MovieDetailsActivity.EXTRA_POSITION, position);
+                        intent.putExtra(MovieDetailsActivity.EXTRA_PARCEL, movies.get(position));
+                        startActivity(intent);
+                        break;
+
                 }
             }
 
@@ -308,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         if(secondActivityVisited) {
-            recyclerView.setAdapter(new RecyclerviewAdapter((ArrayList<Movie>) movies, getApplicationContext()));
+            recyclerView.setAdapter(new MovieRecyclerViewAdapter((ArrayList<Movie>) movies, getApplicationContext()));
         }
     }
 

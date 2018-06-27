@@ -24,7 +24,7 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <ImageView
-                android:id="@+id/image_iv"
+                android:id="@+id/backdropImage_iv"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:adjustViewBounds="true"
@@ -107,6 +107,15 @@
                         style="@style/movieDetailsTextView"
 
                         />
+                    <Button
+                        android:id="@+id/favourite_button"
+                        android:hint="Favorite"
+                        android:drawableLeft="@drawable/ic_date"
+                        android:layout_toRightOf="@id/poster_iv"
+                        android:layout_below="@id/releaseDate_tv"
+                        style="@style/movieDetailsTextView"
+                        android:onClick="favouriteButton"
+                        />
 
 
                 </RelativeLayout>
@@ -118,6 +127,18 @@
                 style="@style/movieSynopsisTextView"
 
                 />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/trailerRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </android.support.v7.widget.RecyclerView>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/reviewRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </android.support.v7.widget.RecyclerView>
 
         </LinearLayout>
 

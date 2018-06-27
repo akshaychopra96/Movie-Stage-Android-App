@@ -1,6 +1,9 @@
 package com.example.akshay.moviestageapp.model;
 
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -10,93 +13,66 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 
+@Entity(tableName = "movieTable")
 public class Movie implements Parcelable {
 
-    @SerializedName("vote_count")
-    @Expose
-    private Integer voteCount;
+    @PrimaryKey
     @SerializedName("id")
     @Expose
     private Integer id;
-    @SerializedName("video")
-    @Expose
-    private Boolean video;
+
+    @ColumnInfo(name = "rating")
     @SerializedName("vote_average")
     @Expose
     private Float voteAverage;
-    @SerializedName("title")
-    @Expose
-    private String title;
-    @SerializedName("popularity")
-    @Expose
-    private Float popularity;
+
     @SerializedName("poster_path")
     @Expose
     private String posterPath;
-    @SerializedName("original_language")
-    @Expose
-    private String originalLanguage;
+
+    @ColumnInfo(name = "title")
     @SerializedName("original_title")
     @Expose
     private String originalTitle;
-    @SerializedName("genre_ids")
-    @Expose
-    private List<Integer> genreIds = null;
+
     @SerializedName("backdrop_path")
     @Expose
     private String backdropPath;
-    @SerializedName("adult")
-    @Expose
-    private Boolean adult;
+
+    @ColumnInfo(name = "plotSynopsis")
     @SerializedName("overview")
     @Expose
     private String overview;
+
     @SerializedName("release_date")
     @Expose
     private String releaseDate;
 
+    @ColumnInfo(name = "favourite")
+    private boolean isFavourite;
+
     /**
      *
-     * @param genreIds
      * @param id
-     * @param title
      * @param releaseDate
      * @param overview
      * @param posterPath
      * @param originalTitle
      * @param voteAverage
-     * @param originalLanguage
-     * @param adult
      * @param backdropPath
-     * @param voteCount
-     * @param video
-     * @param popularity
      */
-    public Movie(Integer voteCount, Integer id, Boolean video, Float voteAverage, String title, Float popularity, String posterPath, String originalLanguage, String originalTitle, List<Integer> genreIds, String backdropPath, Boolean adult, String overview, String releaseDate) {
+    public Movie( Integer id, Float voteAverage, String posterPath, String originalTitle, String backdropPath, String overview, String releaseDate, boolean isFavourite) {
         super();
-        this.voteCount = voteCount;
         this.id = id;
-        this.video = video;
         this.voteAverage = voteAverage;
-        this.title = title;
-        this.popularity = popularity;
         this.posterPath = posterPath;
-        this.originalLanguage = originalLanguage;
         this.originalTitle = originalTitle;
-        this.genreIds = genreIds;
         this.backdropPath = backdropPath;
-        this.adult = adult;
         this.overview = overview;
         this.releaseDate = releaseDate;
+        this.isFavourite = isFavourite;
     }
 
-    public Integer getVoteCount() {
-        return voteCount;
-    }
-
-    public void setVoteCount(Integer voteCount) {
-        this.voteCount = voteCount;
-    }
 
     public Integer getId() {
         return id;
@@ -104,14 +80,6 @@ public class Movie implements Parcelable {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Boolean getVideo() {
-        return video;
-    }
-
-    public void setVideo(Boolean video) {
-        this.video = video;
     }
 
     public Float getVoteAverage() {
@@ -122,36 +90,12 @@ public class Movie implements Parcelable {
         this.voteAverage = voteAverage;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public Float getPopularity() {
-        return popularity;
-    }
-
-    public void setPopularity(Float popularity) {
-        this.popularity = popularity;
-    }
-
     public String getPosterPath() {
         return posterPath;
     }
 
     public void setPosterPath(String posterPath) {
         this.posterPath = posterPath;
-    }
-
-    public String getOriginalLanguage() {
-        return originalLanguage;
-    }
-
-    public void setOriginalLanguage(String originalLanguage) {
-        this.originalLanguage = originalLanguage;
     }
 
     public String getOriginalTitle() {
@@ -162,28 +106,12 @@ public class Movie implements Parcelable {
         this.originalTitle = originalTitle;
     }
 
-    public List<Integer> getGenreIds() {
-        return genreIds;
-    }
-
-    public void setGenreIds(List<Integer> genreIds) {
-        this.genreIds = genreIds;
-    }
-
     public String getBackdropPath() {
         return backdropPath;
     }
 
     public void setBackdropPath(String backdropPath) {
         this.backdropPath = backdropPath;
-    }
-
-    public Boolean getAdult() {
-        return adult;
-    }
-
-    public void setAdult(Boolean adult) {
-        this.adult = adult;
     }
 
     public String getOverview() {
@@ -202,6 +130,9 @@ public class Movie implements Parcelable {
         this.releaseDate = releaseDate;
     }
 
+    public boolean getIsFavourite() {return isFavourite;}
+
+    public void setIsFavourite(boolean isFavourite){this.isFavourite = isFavourite;}
 
     public Movie(Parcel parcel){
         originalTitle = parcel.readString();
@@ -210,6 +141,13 @@ public class Movie implements Parcelable {
         backdropPath = parcel.readString();
         releaseDate = parcel.readString();
         overview = parcel.readString();
+        id = parcel.readInt();
+        isFavourite = (parcel.readInt() ==0 )? false: true;
+        /*
+        *out.writeInt(isSelectionRight ? 1 : 0);
+        read isSelectionRight  = (in.readInt() == 0) ? false : true;
+         */
+
         }
 
     @Override
@@ -226,7 +164,8 @@ public class Movie implements Parcelable {
         dest.writeString(backdropPath);
         dest.writeString(releaseDate);
         dest.writeString(overview);
-
+        dest.writeInt(id);
+        dest.writeInt(isFavourite? 1:0);
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {

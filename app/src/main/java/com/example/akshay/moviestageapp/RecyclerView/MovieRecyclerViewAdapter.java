@@ -14,14 +14,15 @@ import com.example.akshay.moviestageapp.model.Movie;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
-public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapter.RecyclerViewHolder> {
+public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecyclerViewAdapter.RecyclerViewHolder> {
 
     Context context;
-    ArrayList<Movie> movies;
+    List<Movie> movies;
 
-    public RecyclerviewAdapter(ArrayList<Movie> movies, Context context){
+    public MovieRecyclerViewAdapter(List<Movie> movies, Context context){
 
         this.movies = movies;
         this.context = context;
@@ -50,7 +51,7 @@ public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapte
 
     @Override
     public int getItemCount() {
-        return 20;
+        return movies.size();
     }
 
     public class RecyclerViewHolder extends  RecyclerView.ViewHolder{
