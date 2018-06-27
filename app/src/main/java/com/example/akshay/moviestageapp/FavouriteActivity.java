@@ -93,7 +93,11 @@ public class FavouriteActivity extends AppCompatActivity {
             return;
         }
 
-//        movies = intent.getParcelableExtra(EXTRA_PARCEL);
+        MovieViewModel movieViewModel = new MovieViewModel(getApplication());
+        movies = movieViewModel.getMoviesList();
+        Log.d("tag","movies is null or not: "+movies.getValue());
+
+        movieObject = intent.getParcelableExtra(EXTRA_PARCEL);
 
         if (movies == null) {
             // movieObject not found in intent
@@ -105,12 +109,7 @@ public class FavouriteActivity extends AppCompatActivity {
         favouriteRecyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
         favouriteRecyclerView.setHasFixedSize(true);
         mDb = MovieRoomDatabase.getDatabase(getApplicationContext());
-
         setupViewModel();
-
-        MovieViewModel movieViewModel = new MovieViewModel(getApplication());
-        movies = movieViewModel.getMoviesList();
-        Log.d("tag","movies is null or not: "+movies.getValue());
 
 
         favouriteRecyclerView.addOnItemTouchListener(
@@ -121,7 +120,7 @@ public class FavouriteActivity extends AppCompatActivity {
 
                     public void onItemClick(View view, final int position) {
 
-                        Picasso.get().load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(movies.getValue().get(position).getPosterPath(),NetworkUtils.IMAGE_SIZE_PATH)))
+                        Picasso.get().load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(movieObject.getPosterPath(),NetworkUtils.IMAGE_SIZE_PATH)))
                                 .into(new Target() {
 
                                     @Override
@@ -165,7 +164,7 @@ public class FavouriteActivity extends AppCompatActivity {
 
                                         Intent intent = new Intent(FavouriteActivity.this, MovieDetailsActivity.class);
                                         intent.putExtra(MovieDetailsActivity.EXTRA_POSITION, position);
-                                        intent.putExtra(MovieDetailsActivity.EXTRA_PARCEL, movies.getValue().get(position));
+                                        intent.putExtra(MovieDetailsActivity.EXTRA_PARCEL, movieObject);
                                         startActivity(intent);
 
                      /* For Main Activity exit --> fade out and

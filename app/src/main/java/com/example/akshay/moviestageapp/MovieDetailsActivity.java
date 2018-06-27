@@ -40,6 +40,7 @@ import com.example.akshay.moviestageapp.model.Review;
 import com.example.akshay.moviestageapp.model.ReviewResponse;
 import com.example.akshay.moviestageapp.model.Trailer;
 import com.example.akshay.moviestageapp.model.TrailerResponse;
+import com.facebook.stetho.Stetho;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -105,6 +106,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_details);
 
         ButterKnife.bind(this);
+
+        Stetho.initializeWithDefaults(this);
 
         Intent intent = getIntent();
         if (intent == null) {

@@ -48,4 +48,6 @@ dependencies {
     implementation "android.arch.lifecycle:extensions:$rootProject.archLifecycleVersion"
     annotationProcessor "android.arch.lifecycle:compiler:$rootProject.archLifecycleVersion"
 
+    compile 'com.facebook.stetho:stetho:1.5.0'
+
 }
