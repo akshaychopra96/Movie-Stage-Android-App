@@ -2,33 +2,28 @@ package com.example.akshay.moviestageapp;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 import com.example.akshay.moviestageapp.Database.MovieRoomDatabase;
 import com.example.akshay.moviestageapp.InternetConnection.NetworkChangeReceiver;
-import com.example.akshay.moviestageapp.RecyclerView.MovieRecyclerItemClickListener;
-import com.example.akshay.moviestageapp.RecyclerView.MovieRecyclerViewAdapter;
 import com.example.akshay.moviestageapp.RecyclerView.ReviewAdapter;
 import com.example.akshay.moviestageapp.RecyclerView.TrailerRecyclerItemClickListener;
 import com.example.akshay.moviestageapp.RecyclerView.TrailerRecyclerViewAdapter;
@@ -42,12 +37,10 @@ import com.example.akshay.moviestageapp.model.Trailer;
 import com.example.akshay.moviestageapp.model.TrailerResponse;
 import com.facebook.stetho.Stetho;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -86,11 +79,13 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.reviewRecyclerView) RecyclerView reviewRecyclerView;
 
     @BindView(R.id.favourite_button)
-    Button favouriteButton;
+    ImageButton favouriteButton;
 
     private MovieRoomDatabase mDb;
 
     int position;
+    boolean isColorChange;
+    boolean myBoolean;
 
     CoordinatorLayout coordinatorLayout;
 
@@ -107,6 +102,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
+        if(myBoolean){
+            favouriteButton.setColorFilter(Color.parseColor("#DD2C00"));
+        }
+
         Stetho.initializeWithDefaults(this);
 
         Intent intent = getIntent();
@@ -116,6 +115,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         MainActivity.secondActivityVisited = true;
         NetworkChangeReceiver.otherActivityVisited  =true;
+        FavouriteActivity.movieDetailsActivityVisited = true;
 
         position = intent.getIntExtra(EXTRA_POSITION, DEFAULT_POSITION);
 
@@ -289,10 +289,21 @@ public class MovieDetailsActivity extends AppCompatActivity {
     public void favouriteButton(View v){
 
         if (!movieObject.getIsFavourite()) {
-            favouriteButton.setText("UNSAVE");
+
+           isColorChange = true;
+
+            final Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.bounce);
+            favouriteButton.startAnimation(myAnim);
+
+            MyBounceInterpolator interpolator = new MyBounceInterpolator(0.4, 30);
+            myAnim.setInterpolator(interpolator);
+            favouriteButton.startAnimation(myAnim);
+
+            favouriteButton.setColorFilter(Color.parseColor("#DD2C00"));
             addMovieToFavourites();
         } else {
-            favouriteButton.setText("SAVE");
+            isColorChange = false;
+            favouriteButton.setColorFilter(Color.parseColor("#FFEE58"));
             removeMovieFromFavourites();
         }
 
@@ -320,7 +331,17 @@ public class MovieDetailsActivity extends AppCompatActivity {
         movieObject.setIsFavourite(false);
         Toast.makeText(this, movieObject.getOriginalTitle() + " is removed from favourites", Toast.LENGTH_LONG).show();
     }
+    
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putBoolean("MyBoolean", isColorChange);
 
+    }
 
-
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+         myBoolean = savedInstanceState.getBoolean("MyBoolean");
+    }
 }

@@ -27,8 +27,6 @@ public interface MovieDAO {
     @Query("DELETE FROM movieTable")
     void deleteAll();
 
-    @Query("SELECT favourite FROM movieTable WHERE id =:id")
-    boolean getIsFavourite(int id);
 
 
 }

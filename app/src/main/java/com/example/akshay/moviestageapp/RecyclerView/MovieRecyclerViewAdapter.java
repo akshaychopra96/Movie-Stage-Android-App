@@ -22,11 +22,13 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
     Context context;
     List<Movie> movies;
 
-    public MovieRecyclerViewAdapter(List<Movie> movies, Context context){
+    private final ListItemClickListener mOnClickListener;
+
+    public MovieRecyclerViewAdapter(List<Movie> movies, Context context,ListItemClickListener mOnClickListener){
 
         this.movies = movies;
         this.context = context;
-
+        this.mOnClickListener = mOnClickListener;
     }
 
     @NonNull
@@ -44,6 +46,10 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
         return viewHolder;
     }
 
+    public interface ListItemClickListener{
+        void onListItemClick(int clickedItemIndex,List<Movie> moviesList,View view);
+    }
+
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewHolder holder, int position) {
         holder.bind(position);
@@ -54,13 +60,14 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
         return movies.size();
     }
 
-    public class RecyclerViewHolder extends  RecyclerView.ViewHolder{
+    public class RecyclerViewHolder extends  RecyclerView.ViewHolder implements View.OnClickListener{
 
         ImageView movieImage;
 
         public RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
             movieImage = itemView.findViewById(R.id.imageView);
+            itemView.setOnClickListener(this);
         }
 
         void bind(int listIndex) {
@@ -75,6 +82,12 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
                     e.printStackTrace();
                 }
 
+        }
+
+        @Override
+        public void onClick(View v) {
+            int clickedPosition = getAdapterPosition();
+            mOnClickListener.onListItemClick(clickedPosition,movies,itemView);
         }
     }
 

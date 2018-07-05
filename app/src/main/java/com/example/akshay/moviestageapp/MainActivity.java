@@ -1,6 +1,5 @@
 package com.example.akshay.moviestageapp;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -33,7 +32,6 @@ import android.widget.Spinner;
 
 import com.example.akshay.moviestageapp.InternetConnection.NetworkChangeReceiver;
 import com.example.akshay.moviestageapp.RecyclerView.MovieRecyclerViewAdapter;
-import com.example.akshay.moviestageapp.RecyclerView.MovieRecyclerItemClickListener;
 import com.example.akshay.moviestageapp.Rest.ApiClient;
 import com.example.akshay.moviestageapp.Rest.ApiInterface;
 import com.example.akshay.moviestageapp.Utilities.NetworkUtils;
@@ -43,7 +41,6 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.wang.avi.AVLoadingIndicatorView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -52,7 +49,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+import static com.example.akshay.moviestageapp.FavouriteActivity.movieDetailsActivityVisited;
+
+public class MainActivity extends AppCompatActivity implements MovieRecyclerViewAdapter.ListItemClickListener  {
 
     @BindView(R.id.recyclerView) RecyclerView recyclerView;
 
@@ -96,99 +95,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
 
-
-        recyclerView.addOnItemTouchListener(
-                new MovieRecyclerItemClickListener(this, recyclerView, new MovieRecyclerItemClickListener.OnItemClickListener() {
-
-                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-                    @Override
-
-                    public void onItemClick(View view, final int position) {
-
-                        Picasso.get().load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(movies.get(position).getPosterPath(),NetworkUtils.IMAGE_SIZE_PATH)))
-                                .into(new Target() {
-
-                                    @Override
-                                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                                        relativeLayout.setBackground(new BitmapDrawable(getResources(), bitmap));
-                                    }
-
-                                    @Override
-                                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {}
-
-                                    @Override
-                                    public void onPrepareLoad(final Drawable placeHolderDrawable) {}
-                                });
-
-                        final Rect viewRect = new Rect();
-                        view.getGlobalVisibleRect(viewRect);
-
-                        // create Explode transition with epicenter
-                        Transition explode = new Explode();
-                        explode.setEpicenterCallback(new Transition.EpicenterCallback() {
-                            @Override
-                            public Rect onGetEpicenter(Transition transition) {
-                                return viewRect;
-                            }
-                        });
-
-                        explode.addListener(new Transition.TransitionListener() {
-                            @Override
-                            public void onTransitionStart(Transition transition) {}
-
-                            @Override
-                            public void onTransitionEnd(Transition transition) {
-
-                                new Handler().postDelayed(new Runnable() {
-                                    public void run() {
-
-                                        /*
-                                        * EXTRA_POSITION is for passing the position of the item
-                                        * EXTRA_CATEGORY is for passing the category of the movies chosen
-                                         */
-
-                                        Intent intent = new Intent(MainActivity.this, MovieDetailsActivity.class);
-                                        intent.putExtra(MovieDetailsActivity.EXTRA_POSITION, position);
-                                        intent.putExtra(MovieDetailsActivity.EXTRA_PARCEL, movies.get(position));
-                                        startActivity(intent);
-
-                     /* For Main Activity exit --> fade out and
-                      * For Second Activity entry --> fade in animation transitions.
-                      */
-                                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                                    }
-                                }, 200);
-
-                            }
-
-                            @Override
-                            public void onTransitionCancel(Transition transition) {}
-
-                            @Override
-                            public void onTransitionPause(Transition transition) {}
-
-                            @Override
-                            public void onTransitionResume(Transition transition) {}
-                        });
-
-                        explode.setDuration(1200);
-                        TransitionManager.beginDelayedTransition(recyclerView, explode);
-
-                        // remove all views from Recycler View
-                        recyclerView.setAdapter(null);
-                    }
-
-                    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-
-                    @Override
-                    public void onLongItemClick(View view, final int position) {
-
-                    }
-                })
-        );
     }
-
 
     public void getPopularMovies(Call<MovieResponse> call) {
 
@@ -202,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                     movies.clear();
 
                 movies = response.body().getResults();
-                recyclerView.setAdapter(new MovieRecyclerViewAdapter((ArrayList<Movie>) movies, getApplicationContext()));
+                recyclerView.setAdapter(new MovieRecyclerViewAdapter(movies,MainActivity.this,MainActivity.this));
 
                 progressBarEnd();
 
@@ -232,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
                         movies.clear();
 
                     movies = response.body().getResults();
-                    recyclerView.setAdapter(new MovieRecyclerViewAdapter((ArrayList<Movie>) movies, getApplicationContext()));
+                    recyclerView.setAdapter(new MovieRecyclerViewAdapter( movies, MainActivity.this,MainActivity.this));
 
                     progressBarEnd();
 
@@ -294,8 +201,6 @@ public class MainActivity extends AppCompatActivity {
 
                     case FAVOURITES:
                         Intent intent = new Intent(getApplicationContext(),FavouriteActivity.class);
-                        intent.putExtra(MovieDetailsActivity.EXTRA_POSITION, position);
-                        intent.putExtra(MovieDetailsActivity.EXTRA_PARCEL, movies.get(position));
                         startActivity(intent);
                         break;
 
@@ -313,9 +218,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if(secondActivityVisited) {
-            recyclerView.setAdapter(new MovieRecyclerViewAdapter((ArrayList<Movie>) movies, getApplicationContext()));
+        if(secondActivityVisited && movies!=null) {
+            recyclerView.setAdapter(new MovieRecyclerViewAdapter(movies, MainActivity.this,MainActivity.this));
         }
+
     }
 
     @Override
@@ -325,5 +231,85 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public void onListItemClick(final int position, List<Movie> moviesList, View view) {
+
+        Picasso.get().load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(movies.get(position).getPosterPath(),NetworkUtils.IMAGE_SIZE_PATH)))
+                .into(new Target() {
+
+                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        relativeLayout.setBackground(new BitmapDrawable(getResources(), bitmap));
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {}
+
+                    @Override
+                    public void onPrepareLoad(final Drawable placeHolderDrawable) {}
+                });
+
+        final Rect viewRect = new Rect();
+        view.getGlobalVisibleRect(viewRect);
+
+        // create Explode transition with epicenter
+        Transition explode = new Explode();
+        explode.setEpicenterCallback(new Transition.EpicenterCallback() {
+            @Override
+            public Rect onGetEpicenter(Transition transition) {
+                return viewRect;
+            }
+        });
+
+        explode.addListener(new Transition.TransitionListener() {
+            @Override
+            public void onTransitionStart(Transition transition) {}
+
+            @Override
+            public void onTransitionEnd(Transition transition) {
+
+                new Handler().postDelayed(new Runnable() {
+                    public void run() {
+
+                                        /*
+                                        * EXTRA_POSITION is for passing the position of the item
+                                        * EXTRA_CATEGORY is for passing the category of the movies chosen
+                                         */
+
+                        Intent intent = new Intent(MainActivity.this, MovieDetailsActivity.class);
+                        intent.putExtra(MovieDetailsActivity.EXTRA_POSITION, position);
+                        intent.putExtra(MovieDetailsActivity.EXTRA_PARCEL, movies.get(position));
+                        startActivity(intent);
+
+                     /* For Main Activity exit --> fade out and
+                      * For Second Activity entry --> fade in animation transitions.
+                      */
+                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                    }
+                }, 200);
+            }
+
+            @Override
+            public void onTransitionCancel(Transition transition) {}
+
+            @Override
+            public void onTransitionPause(Transition transition) {}
+
+            @Override
+            public void onTransitionResume(Transition transition) {}
+        });
+
+        explode.setDuration(1200);
+        TransitionManager.beginDelayedTransition(recyclerView, explode);
+
+        // remove all views from Recycler View
+        recyclerView.setAdapter(null);
+    }
 
 }
+
+
+
+

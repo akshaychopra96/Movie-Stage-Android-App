@@ -1,10 +1,8 @@
 package com.example.akshay.moviestageapp;
 
-import android.annotation.TargetApi;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.arch.persistence.room.RoomDatabase;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
@@ -17,7 +15,6 @@ import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.transition.Explode;
 import android.transition.Transition;
@@ -32,7 +29,6 @@ import android.widget.Toast;
 
 import com.example.akshay.moviestageapp.Database.MovieRoomDatabase;
 import com.example.akshay.moviestageapp.InternetConnection.NetworkChangeReceiver;
-import com.example.akshay.moviestageapp.RecyclerView.MovieRecyclerItemClickListener;
 import com.example.akshay.moviestageapp.RecyclerView.MovieRecyclerViewAdapter;
 import com.example.akshay.moviestageapp.Utilities.NetworkUtils;
 import com.example.akshay.moviestageapp.ViewModel.MovieViewModel;
@@ -40,7 +36,6 @@ import com.example.akshay.moviestageapp.model.Movie;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -48,26 +43,24 @@ import java.util.concurrent.Executors;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class FavouriteActivity extends AppCompatActivity {
+public class FavouriteActivity extends AppCompatActivity implements MovieRecyclerViewAdapter.ListItemClickListener {
 
     @BindView(R.id.favourite_recyclerView)
     RecyclerView favouriteRecyclerView;
 
-    @BindView(R.id.favouriteLinearLayout)
     LinearLayout linearLayout;
 
     MovieRoomDatabase mDb;
     MovieRecyclerViewAdapter movieAdapter;
 
-    LiveData<List<Movie>> movies;
-    int position;
-    Movie movieObject;
+    List<Movie> mm;
+
+    static boolean movieDetailsActivityVisited = false;
 
     public static final String EXTRA_PARCEL = "extra_parcel";
     public static final String EXTRA_POSITION = "extra_position";
     private static final int DEFAULT_POSITION = -1;
 
-    RoomDatabase roomDatabase;
     private final Executor executor = Executors.newFixedThreadPool(2);
 
     @Override
@@ -77,6 +70,8 @@ public class FavouriteActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
+        linearLayout = findViewById(R.id.favouriteLinearLayout);
+
         Intent intent = getIntent();
         if (intent == null) {
             closeOnError();
@@ -85,44 +80,68 @@ public class FavouriteActivity extends AppCompatActivity {
         MainActivity.secondActivityVisited = true;
         NetworkChangeReceiver.otherActivityVisited  =true;
 
-        position = intent.getIntExtra(EXTRA_POSITION, DEFAULT_POSITION);
-
-        if (position == DEFAULT_POSITION) {
-            // EXTRA_POSITION not found in intent
-            closeOnError();
-            return;
-        }
-
-        MovieViewModel movieViewModel = new MovieViewModel(getApplication());
-        movies = movieViewModel.getMoviesList();
-        Log.d("tag","movies is null or not: "+movies.getValue());
-
-        movieObject = intent.getParcelableExtra(EXTRA_PARCEL);
-
-        if (movies == null) {
-            // movieObject not found in intent
-            closeOnError();
-            return;
-        }
-
-
         favouriteRecyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
         favouriteRecyclerView.setHasFixedSize(true);
         mDb = MovieRoomDatabase.getDatabase(getApplicationContext());
+
         setupViewModel();
+    }
+
+    private void setupViewModel() {
+        MovieViewModel movieViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
+        movieViewModel.getMoviesList().observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(@Nullable List<Movie> movies) {
+                movieAdapter = new MovieRecyclerViewAdapter( movies, FavouriteActivity.this,FavouriteActivity.this);
+                favouriteRecyclerView.setAdapter(movieAdapter);
+            }
+        });
+    }
 
 
-        favouriteRecyclerView.addOnItemTouchListener(
-                new MovieRecyclerItemClickListener(this, favouriteRecyclerView, new MovieRecyclerItemClickListener.OnItemClickListener() {
+    private void closeOnError() {
+        finish();
+        Toast.makeText(this, "!X!Error!X!", Toast.LENGTH_SHORT).show();
 
-                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-                    @Override
+    }
 
-                    public void onItemClick(View view, final int position) {
 
-                        Picasso.get().load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(movieObject.getPosterPath(),NetworkUtils.IMAGE_SIZE_PATH)))
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.favourite_menu, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        if(id == R.id.deleteAll){
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mDb.movieDao().deleteAll();
+                }
+            });
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public void onListItemClick(final int position, final List<Movie> moviesList, View view) {
+
+        mm = moviesList;
+        Log.d("tag","mm inside method "+mm);
+
+                        Picasso.get().load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(moviesList.get(position).getPosterPath(),NetworkUtils.IMAGE_SIZE_PATH)))
                                 .into(new Target() {
 
+                                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
                                     @Override
                                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                                         linearLayout.setBackground(new BitmapDrawable(getResources(), bitmap));
@@ -164,7 +183,8 @@ public class FavouriteActivity extends AppCompatActivity {
 
                                         Intent intent = new Intent(FavouriteActivity.this, MovieDetailsActivity.class);
                                         intent.putExtra(MovieDetailsActivity.EXTRA_POSITION, position);
-                                        intent.putExtra(MovieDetailsActivity.EXTRA_PARCEL, movieObject);
+                                        intent.putExtra(MovieDetailsActivity.EXTRA_PARCEL, moviesList.get(position));
+                                        intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
                                         startActivity(intent);
 
                      /* For Main Activity exit --> fade out and
@@ -193,63 +213,14 @@ public class FavouriteActivity extends AppCompatActivity {
                         favouriteRecyclerView.setAdapter(null);
                     }
 
-                    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-
-                    @Override
-                    public void onLongItemClick(View view, final int position) {
-
-                    }
-                })
-        );
-
-    }
-
-    private void setupViewModel() {
-        MovieViewModel movieViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
-        movieViewModel.getMoviesList().observe(this, new Observer<List<Movie>>() {
-            @Override
-            public void onChanged(@Nullable List<Movie> movies) {
-                movieAdapter = new MovieRecyclerViewAdapter( movies, getApplicationContext());
-                favouriteRecyclerView.setAdapter(movieAdapter);
-            }
-        });
-    }
-
-
-    private void closeOnError() {
-        finish();
-        Toast.makeText(this, "!X!Error!X!", Toast.LENGTH_SHORT).show();
-
-    }
-
-
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.favourite_menu, menu);
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        int id = item.getItemId();
-
-        if(id == R.id.deleteAll){
-
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mDb.movieDao().deleteAll();
-                }
-            });
-
-
+    protected void onResume() {
+        super.onResume();
+        if(movieDetailsActivityVisited && mm!=null) {
+//            linearLayout.setBackground(R.drawable.ic_camera_roll);
+            favouriteRecyclerView.setAdapter(new MovieRecyclerViewAdapter(mm, FavouriteActivity.this,FavouriteActivity.this));
+            linearLayout.setBackground(Drawable.createFromPath("ffffff"));
         }
-
-
-        return super.onOptionsItemSelected(item);
     }
 }

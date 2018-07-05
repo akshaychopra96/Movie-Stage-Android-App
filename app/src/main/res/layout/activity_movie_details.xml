@@ -107,14 +107,17 @@
                         style="@style/movieDetailsTextView"
 
                         />
-                    <Button
+                    <ImageButton
                         android:id="@+id/favourite_button"
-                        android:hint="Favorite"
-                        android:drawableLeft="@drawable/ic_date"
+                        android:background="#ffffff"
                         android:layout_toRightOf="@id/poster_iv"
                         android:layout_below="@id/releaseDate_tv"
-                        style="@style/movieDetailsTextView"
                         android:onClick="favouriteButton"
+                        android:layout_width="80dp"
+                        android:layout_height="70dp"
+                        android:src="@drawable/ic_favorite"
+                        android:scaleType="centerCrop"
+                        android:paddingLeft="20dp"
                         />
 
 
