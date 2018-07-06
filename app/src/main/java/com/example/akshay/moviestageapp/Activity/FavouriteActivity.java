@@ -1,6 +1,5 @@
-package com.example.akshay.moviestageapp;
+package com.example.akshay.moviestageapp.Activity;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -29,6 +28,7 @@ import android.widget.Toast;
 
 import com.example.akshay.moviestageapp.Database.MovieRoomDatabase;
 import com.example.akshay.moviestageapp.InternetConnection.NetworkChangeReceiver;
+import com.example.akshay.moviestageapp.R;
 import com.example.akshay.moviestageapp.RecyclerView.MovieRecyclerViewAdapter;
 import com.example.akshay.moviestageapp.Utilities.NetworkUtils;
 import com.example.akshay.moviestageapp.ViewModel.MovieViewModel;

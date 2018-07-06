@@ -7,7 +7,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/stage_curtain"
     android:id="@+id/mainActivityRootLayout"
-    tools:context="com.example.akshay.moviestageapp.MainActivity">
+    tools:context="com.example.akshay.moviestageapp.Activity.MainActivity">
 
    <android.support.v7.widget.RecyclerView
        android:id="@+id/recyclerView"

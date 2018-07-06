@@ -1,4 +1,4 @@
-package com.example.akshay.moviestageapp;
+package com.example.akshay.moviestageapp.Activity;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -16,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,6 +23,8 @@ import android.widget.Toast;
 
 import com.example.akshay.moviestageapp.Database.MovieRoomDatabase;
 import com.example.akshay.moviestageapp.InternetConnection.NetworkChangeReceiver;
+import com.example.akshay.moviestageapp.MyBounceInterpolator;
+import com.example.akshay.moviestageapp.R;
 import com.example.akshay.moviestageapp.RecyclerView.ReviewAdapter;
 import com.example.akshay.moviestageapp.RecyclerView.TrailerRecyclerItemClickListener;
 import com.example.akshay.moviestageapp.RecyclerView.TrailerRecyclerViewAdapter;
@@ -51,8 +52,6 @@ import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static com.example.akshay.moviestageapp.MainActivity.API_KEY;
 
 
 public class MovieDetailsActivity extends AppCompatActivity {
@@ -87,6 +86,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     boolean isColorChange;
     boolean myBoolean;
 
+    @BindView(R.id.homeactivitycoordinator)
     CoordinatorLayout coordinatorLayout;
 
     Movie movieObject;
@@ -101,10 +101,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_details);
 
         ButterKnife.bind(this);
-
-        if(myBoolean){
-            favouriteButton.setColorFilter(Color.parseColor("#DD2C00"));
-        }
+//
+//        if(myBoolean){
+//            favouriteButton.setColorFilter(Color.parseColor("#DD2C00"));
+//        }
 
         Stetho.initializeWithDefaults(this);
 
@@ -142,10 +142,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         apiService = ApiClient.getClient().create(ApiInterface.class);
 //        Log.d("tag","user id: "+movieObject.getId());
-        Call<TrailerResponse> call1 = apiService.getMovieTrailers(""+movieObject.getId(),API_KEY);
+        Call<TrailerResponse> call1 = apiService.getMovieTrailers(""+movieObject.getId(), MainActivity.API_KEY);
         getMovieTrailers(call1);
 
-        Call<ReviewResponse> call2 = apiService.getMovieReviews(""+movieObject.getId(),API_KEY);
+        Call<ReviewResponse> call2 = apiService.getMovieReviews(""+movieObject.getId(), MainActivity.API_KEY);
         getMovieReviews(call2);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false);
@@ -208,7 +208,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<TrailerResponse> call, Throwable t) {
                 Log.e("tag", t.toString());
-                Snackbar.make(coordinatorLayout, "Failed Loading List", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(coordinatorLayout.getRootView(), "Failed Loading List", Snackbar.LENGTH_LONG).show();
             }
         });
 
@@ -225,6 +225,12 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
                 reviews = response.body().getResults();
 
+                if(reviews.size() == 0){
+                    TextView reviewHeading = findViewById(R.id.reviewHeading);
+                    reviewHeading.setText("No Reviews Available");
+                }
+
+
                 reviewRecyclerView.setAdapter(new ReviewAdapter(getApplicationContext(),reviews));
             }
 
@@ -232,7 +238,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
             public void onFailure(Call<ReviewResponse> call, Throwable t) {
                 Log.e("tag", t.toString());
 
-                Snackbar.make(coordinatorLayout, "Failed Loading List", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(coordinatorLayout.getRootView(), "Failed Loading List", Snackbar.LENGTH_LONG).show();
             }
         });
     }
@@ -268,7 +274,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
          releaseDateTV.setText(formattedDate);
 
 
-
     }
 
     @Override
@@ -288,7 +293,22 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     public void favouriteButton(View v){
 
-        if (!movieObject.getIsFavourite()) {
+        if(movieObject.getIsFavourite() == false){
+            movieObject.setIsFavourite(true);
+
+            final Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.bounce);
+            favouriteButton.startAnimation(myAnim);
+
+            MyBounceInterpolator interpolator = new MyBounceInterpolator(0.4, 30);
+            myAnim.setInterpolator(interpolator);
+            favouriteButton.startAnimation(myAnim);
+
+            favouriteButton.setColorFilter(Color.parseColor("#DD2C00"));
+            addMovieToFavourites();
+        }
+
+
+        /*if (!movieObject.getIsFavourite()) {
 
            isColorChange = true;
 
@@ -301,12 +321,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
             favouriteButton.setColorFilter(Color.parseColor("#DD2C00"));
             addMovieToFavourites();
-        } else {
-            isColorChange = false;
+        }*/ else {
+            movieObject.setIsFavourite(false);
             favouriteButton.setColorFilter(Color.parseColor("#FFEE58"));
             removeMovieFromFavourites();
         }
-
     }
 
     private void addMovieToFavourites() {
@@ -331,17 +350,26 @@ public class MovieDetailsActivity extends AppCompatActivity {
         movieObject.setIsFavourite(false);
         Toast.makeText(this, movieObject.getOriginalTitle() + " is removed from favourites", Toast.LENGTH_LONG).show();
     }
-    
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putBoolean("MyBoolean", isColorChange);
-
-    }
 
     @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-         myBoolean = savedInstanceState.getBoolean("MyBoolean");
+    protected void onResume() {
+        super.onResume();
+
+        if(movieObject!=null && movieObject.getIsFavourite()){
+            favouriteButton.setColorFilter(Color.parseColor("#DD2C00"));
+        }
     }
+
+    //
+//    @Override
+//    public void onSaveInstanceState(Bundle savedInstanceState) {
+//        super.onSaveInstanceState(savedInstanceState);
+//        savedInstanceState.putBoolean("MyBoolean", isColorChange);
+//    }
+//
+//    @Override
+//    public void onRestoreInstanceState(Bundle savedInstanceState) {
+//        super.onRestoreInstanceState(savedInstanceState);
+//         myBoolean = savedInstanceState.getBoolean("MyBoolean");
+//    }
 }

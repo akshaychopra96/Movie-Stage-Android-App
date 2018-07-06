@@ -1,4 +1,4 @@
-package com.example.akshay.moviestageapp;
+package com.example.akshay.moviestageapp.Activity;
 
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -30,7 +30,9 @@ import android.widget.ArrayAdapter;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 
+import com.example.akshay.moviestageapp.BuildConfig;
 import com.example.akshay.moviestageapp.InternetConnection.NetworkChangeReceiver;
+import com.example.akshay.moviestageapp.R;
 import com.example.akshay.moviestageapp.RecyclerView.MovieRecyclerViewAdapter;
 import com.example.akshay.moviestageapp.Rest.ApiClient;
 import com.example.akshay.moviestageapp.Rest.ApiInterface;
@@ -48,8 +50,6 @@ import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static com.example.akshay.moviestageapp.FavouriteActivity.movieDetailsActivityVisited;
 
 public class MainActivity extends AppCompatActivity implements MovieRecyclerViewAdapter.ListItemClickListener  {
 

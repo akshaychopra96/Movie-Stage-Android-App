@@ -1,4 +1,4 @@
-package com.example.akshay.moviestageapp;
+package com.example.akshay.moviestageapp.Activity;
 
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.widget.ImageView;
 
 import com.example.akshay.moviestageapp.InternetConnection.NetworkChangeReceiver;
+import com.example.akshay.moviestageapp.R;
 import com.squareup.picasso.Picasso;
 
 public class StartingActivity extends AppCompatActivity {

@@ -63,9 +63,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         }
 
         public void bind(int position) {
-
             reviewTV.setText(reviews.get(position).getContent());
-
         }
     }
 

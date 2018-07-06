@@ -6,8 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
-import com.example.akshay.moviestageapp.MainActivity;
-import com.example.akshay.moviestageapp.StartingActivity;
+import com.example.akshay.moviestageapp.Activity.MainActivity;
+import com.example.akshay.moviestageapp.Activity.StartingActivity;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
@@ -27,9 +27,11 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         {
             if(otherActivityVisited == true){
                 otherActivityVisited = false;
-                Intent i = new Intent(context,StartingActivity.class);
+                Toast.makeText(context,"No Internet",Toast.LENGTH_LONG).show();
+
+/*                Intent i = new Intent(context,StartingActivity.class);
                 context.startActivity(i);
-                context.unregisterReceiver(this);
+                context.unregisterReceiver(this);*/
             }
         }
     }

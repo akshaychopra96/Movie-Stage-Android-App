@@ -12,10 +12,10 @@
         android:roundIcon="@drawable/ic_camera_roll"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".Activity.MainActivity"></activity>
         <activity
-            android:name=".MovieDetailsActivity"
-            android:parentActivityName=".MainActivity"
+            android:name=".Activity.MovieDetailsActivity"
+            android:parentActivityName=".Activity.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <receiver android:name=".InternetConnection.NetworkChangeReceiver">
@@ -25,7 +25,7 @@
         </receiver>
 
         <activity
-            android:name=".StartingActivity"
+            android:name=".Activity.StartingActivity"
             android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,8 +33,8 @@
             </intent-filter>
 
         </activity>
-        <activity android:name=".FavouriteActivity"
-            android:parentActivityName=".MainActivity"
+        <activity android:name=".Activity.FavouriteActivity"
+            android:parentActivityName=".Activity.MainActivity"
             ></activity>
     </application>
 
