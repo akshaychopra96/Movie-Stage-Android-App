@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/favouriteLinearLayout"
-    tools:context="com.example.akshay.moviestageapp.Activity.FavouriteActivity">
+    tools:context="com.example.akshay.moviestageapp.activity.FavouriteActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/favourite_recyclerView"

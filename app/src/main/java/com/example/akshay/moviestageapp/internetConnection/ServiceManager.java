@@ -1,4 +1,4 @@
-package com.example.akshay.moviestageapp.InternetConnection;
+package com.example.akshay.moviestageapp.internetConnection;
 
 
 import android.content.Context;

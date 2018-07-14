@@ -1,4 +1,4 @@
-package com.example.akshay.moviestageapp.Activity;
+package com.example.akshay.moviestageapp.activity;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -26,12 +26,12 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.example.akshay.moviestageapp.Database.MovieRoomDatabase;
-import com.example.akshay.moviestageapp.InternetConnection.NetworkChangeReceiver;
+import com.example.akshay.moviestageapp.database.MovieRoomDatabase;
+import com.example.akshay.moviestageapp.internetConnection.NetworkChangeReceiver;
 import com.example.akshay.moviestageapp.R;
-import com.example.akshay.moviestageapp.RecyclerView.MovieRecyclerViewAdapter;
-import com.example.akshay.moviestageapp.Utilities.NetworkUtils;
-import com.example.akshay.moviestageapp.ViewModel.MovieViewModel;
+import com.example.akshay.moviestageapp.recyclerView.MovieRecyclerViewAdapter;
+import com.example.akshay.moviestageapp.utilities.NetworkUtils;
+import com.example.akshay.moviestageapp.viewModel.MovieViewModel;
 import com.example.akshay.moviestageapp.model.Movie;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -218,7 +218,6 @@ public class FavouriteActivity extends AppCompatActivity implements MovieRecycle
     protected void onResume() {
         super.onResume();
         if(movieDetailsActivityVisited && mm!=null) {
-//            linearLayout.setBackground(R.drawable.ic_camera_roll);
             favouriteRecyclerView.setAdapter(new MovieRecyclerViewAdapter(mm, FavouriteActivity.this,FavouriteActivity.this));
             linearLayout.setBackground(Drawable.createFromPath("ffffff"));
         }

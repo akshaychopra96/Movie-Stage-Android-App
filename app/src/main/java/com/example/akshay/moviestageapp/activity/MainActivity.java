@@ -1,6 +1,11 @@
-package com.example.akshay.moviestageapp.Activity;
+package com.example.akshay.moviestageapp.activity;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
@@ -9,6 +14,9 @@ import android.graphics.drawable.Drawable;
 
 import android.os.Build;
 import android.os.Handler;
+import android.os.Parcelable;
+import android.provider.Settings;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
@@ -31,14 +39,15 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 
 import com.example.akshay.moviestageapp.BuildConfig;
-import com.example.akshay.moviestageapp.InternetConnection.NetworkChangeReceiver;
+import com.example.akshay.moviestageapp.internetConnection.NetworkChangeReceiver;
 import com.example.akshay.moviestageapp.R;
-import com.example.akshay.moviestageapp.RecyclerView.MovieRecyclerViewAdapter;
-import com.example.akshay.moviestageapp.Rest.ApiClient;
-import com.example.akshay.moviestageapp.Rest.ApiInterface;
-import com.example.akshay.moviestageapp.Utilities.NetworkUtils;
+import com.example.akshay.moviestageapp.recyclerView.MovieRecyclerViewAdapter;
+import com.example.akshay.moviestageapp.rest.ApiClient;
+import com.example.akshay.moviestageapp.rest.ApiInterface;
+import com.example.akshay.moviestageapp.utilities.NetworkUtils;
 import com.example.akshay.moviestageapp.model.Movie;
 import com.example.akshay.moviestageapp.model.MovieResponse;
+import com.example.akshay.moviestageapp.viewModel.MovieViewModel;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.wang.avi.AVLoadingIndicatorView;
@@ -69,9 +78,16 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
 
     int MOVIE_CATEGORY = 0;
 
-    private static final int POPULAR_MOVIES = 0;
-    private static final int TOP_RATED_MOVIES = 1;
-    private static final int FAVOURITES = 2;
+    Call<MovieResponse> call;
+
+    private static final int POPULAR_MOVIES = 1;
+    private static final int TOP_RATED_MOVIES = 2;
+    private static final int FAVOURITES = 3;
+
+    GridLayoutManager layoutManager;
+
+    boolean isPopularMovies;
+    private MovieViewModel movieViewModel;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 
@@ -86,16 +102,41 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
 
         apiService = ApiClient.getClient().create(ApiInterface.class);
 
-        Call<MovieResponse> call = apiService.getPopularMovies(API_KEY);
+/*        SharedPreferences s = getSharedPreferences("myFile", Context.MODE_PRIVATE);
+        isPopularMovies = s.getBoolean("isPopularMovies",true);
+
+       if(isPopularMovies) {
+            call = apiService.getPopularMovies(API_KEY);
+            getPopularMovies(call);
+        }
+        else{
+            call = apiService.getTopRatedMovies(API_KEY);
+            getTopRatedMovies(call);
+        }
+
+
+       movieViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(MovieViewModel.class);
+        movieViewModel.getMoviesList().observe(this, new Observer<List<Movie>>()  {
+            @Override
+            public void onChanged(@Nullable List<Movie> movies) {
+                if (movies != null) {
+                    Log.v("Debug App", "Fetched Data: " + movies.toString());
+                    recyclerView.setAdapter(new MovieRecyclerViewAdapter(movies,MainActivity.this,MainActivity.this));
+                }
+            }
+        });
+*/
+        call = apiService.getPopularMovies(API_KEY);
         getPopularMovies(call);
 
         final int spanCount = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? 4 : 2;
 
-        GridLayoutManager layoutManager = new GridLayoutManager(this, spanCount);
+        layoutManager = new GridLayoutManager(this, spanCount);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
 
     }
+
 
     public void getPopularMovies(Call<MovieResponse> call) {
 
@@ -188,22 +229,35 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-                switch (position){
-                    case POPULAR_MOVIES:
-                        Call<MovieResponse> call0 = apiService.getPopularMovies(API_KEY);
-                        getPopularMovies(call0);
-                        break;
+                SharedPreferences s = getSharedPreferences("myFile", Context.MODE_PRIVATE);
 
-                    case TOP_RATED_MOVIES:
-                        Call<MovieResponse> call1 = apiService.getTopRatedMovies(API_KEY);
-                        getTopRatedMovies(call1);
-                        break;
+                if(position == 0){
+                    // do nothing
+                }else {
 
-                    case FAVOURITES:
-                        Intent intent = new Intent(getApplicationContext(),FavouriteActivity.class);
-                        startActivity(intent);
-                        break;
+                    switch (position) {
+                        case POPULAR_MOVIES:
+                            Call<MovieResponse> call0 = apiService.getPopularMovies(API_KEY);
+                            getPopularMovies(call0);
+                            SharedPreferences.Editor e = s.edit();
+                            e.putBoolean("isPopularMovies", true);
+                            e.commit();
+                            break;
 
+                        case TOP_RATED_MOVIES:
+                            Call<MovieResponse> call1 = apiService.getTopRatedMovies(API_KEY);
+                            getTopRatedMovies(call1);
+                            SharedPreferences.Editor ee = s.edit();
+                            ee.putBoolean("isPopularMovies", false);
+                            ee.commit();
+                            break;
+
+                        case FAVOURITES:
+                            Intent intent = new Intent(getApplicationContext(), FavouriteActivity.class);
+                            startActivity(intent);
+                            break;
+
+                    }
                 }
             }
 
@@ -212,16 +266,6 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
         });
 
         return true;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if(secondActivityVisited && movies!=null) {
-            recyclerView.setAdapter(new MovieRecyclerViewAdapter(movies, MainActivity.this,MainActivity.this));
-        }
-
     }
 
     @Override
@@ -306,6 +350,19 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
 
         // remove all views from Recycler View
         recyclerView.setAdapter(null);
+    }
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(secondActivityVisited && movies!=null) {
+            recyclerView.setAdapter(new MovieRecyclerViewAdapter(movies, MainActivity.this,MainActivity.this));
+        }
+
+
     }
 
 }

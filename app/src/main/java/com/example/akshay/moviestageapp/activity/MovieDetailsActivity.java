@@ -1,9 +1,10 @@
-package com.example.akshay.moviestageapp.Activity;
+package com.example.akshay.moviestageapp.activity;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -16,21 +17,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Adapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.akshay.moviestageapp.Database.MovieRoomDatabase;
-import com.example.akshay.moviestageapp.InternetConnection.NetworkChangeReceiver;
+import com.example.akshay.moviestageapp.database.MovieRoomDatabase;
+import com.example.akshay.moviestageapp.internetConnection.NetworkChangeReceiver;
 import com.example.akshay.moviestageapp.MyBounceInterpolator;
 import com.example.akshay.moviestageapp.R;
-import com.example.akshay.moviestageapp.RecyclerView.ReviewAdapter;
-import com.example.akshay.moviestageapp.RecyclerView.TrailerRecyclerItemClickListener;
-import com.example.akshay.moviestageapp.RecyclerView.TrailerRecyclerViewAdapter;
-import com.example.akshay.moviestageapp.Rest.ApiClient;
-import com.example.akshay.moviestageapp.Rest.ApiInterface;
-import com.example.akshay.moviestageapp.Utilities.NetworkUtils;
+import com.example.akshay.moviestageapp.recyclerView.ReviewAdapter;
+import com.example.akshay.moviestageapp.recyclerView.TrailerRecyclerItemClickListener;
+import com.example.akshay.moviestageapp.recyclerView.TrailerRecyclerViewAdapter;
+import com.example.akshay.moviestageapp.rest.ApiClient;
+import com.example.akshay.moviestageapp.rest.ApiInterface;
+import com.example.akshay.moviestageapp.utilities.NetworkUtils;
 import com.example.akshay.moviestageapp.model.Movie;
 import com.example.akshay.moviestageapp.model.Review;
 import com.example.akshay.moviestageapp.model.ReviewResponse;
@@ -101,12 +103,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_details);
 
         ButterKnife.bind(this);
-//
-//        if(myBoolean){
-//            favouriteButton.setColorFilter(Color.parseColor("#DD2C00"));
-//        }
 
-        Stetho.initializeWithDefaults(this);
+            Stetho.initializeWithDefaults(this);
 
         Intent intent = getIntent();
         if (intent == null) {
@@ -141,7 +139,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         apiService = ApiClient.getClient().create(ApiInterface.class);
-//        Log.d("tag","user id: "+movieObject.getId());
+
         Call<TrailerResponse> call1 = apiService.getMovieTrailers(""+movieObject.getId(), MainActivity.API_KEY);
         getMovieTrailers(call1);
 
@@ -162,16 +160,17 @@ public class MovieDetailsActivity extends AppCompatActivity {
                         String videoId = trailers.get(position).getKey();
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:"+videoId));
                         intent.putExtra("VIDEO_ID", videoId);
-                        try {
+                        if (intent.resolveActivity(getPackageManager()) != null)
                             startActivity(intent);
-                        }
-                        catch (ActivityNotFoundException e){
-                            Intent webIntent = new Intent(Intent.ACTION_VIEW,
-                                    Uri.parse("http://www.youtube.com/watch?v=" + videoId));
+                        else{
+                            Intent webIntent = new Intent(Intent.ACTION_VIEW,Uri.parse("http://www.youtube.com/watch?v=" + videoId));
+                            if (webIntent.resolveActivity(getPackageManager()) != null)
                             startActivity(webIntent);
+                            else{
+                                Toast.makeText(MovieDetailsActivity.this,"Sorry, No App available to launch",Toast.LENGTH_LONG).show();
+                            }
                         }
                     }
-
 
                     @Override
                     public void onLongItemClick(View view, int position) {
@@ -186,10 +185,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mDb = MovieRoomDatabase.getDatabase(getApplicationContext());
 
         setData();
-
-
     }
-
 
     private void getMovieTrailers(Call<TrailerResponse> call) {
 
@@ -272,8 +268,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
         String formattedDate = finalDateFormat.format(date);
 
          releaseDateTV.setText(formattedDate);
-
-
     }
 
     @Override
@@ -307,21 +301,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
             addMovieToFavourites();
         }
 
-
-        /*if (!movieObject.getIsFavourite()) {
-
-           isColorChange = true;
-
-            final Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.bounce);
-            favouriteButton.startAnimation(myAnim);
-
-            MyBounceInterpolator interpolator = new MyBounceInterpolator(0.4, 30);
-            myAnim.setInterpolator(interpolator);
-            favouriteButton.startAnimation(myAnim);
-
-            favouriteButton.setColorFilter(Color.parseColor("#DD2C00"));
-            addMovieToFavourites();
-        }*/ else {
+        else {
             movieObject.setIsFavourite(false);
             favouriteButton.setColorFilter(Color.parseColor("#FFEE58"));
             removeMovieFromFavourites();
@@ -351,25 +331,24 @@ public class MovieDetailsActivity extends AppCompatActivity {
         Toast.makeText(this, movieObject.getOriginalTitle() + " is removed from favourites", Toast.LENGTH_LONG).show();
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
 
-        if(movieObject!=null && movieObject.getIsFavourite()){
-            favouriteButton.setColorFilter(Color.parseColor("#DD2C00"));
-        }
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                int id = mDb.movieDao().getMovieId(movieObject.getId());
+
+                if (id == movieObject.getId())
+                    favouriteButton.setColorFilter(Color.parseColor("#DD2C00"));
+            }
+        });
+
     }
 
-    //
-//    @Override
-//    public void onSaveInstanceState(Bundle savedInstanceState) {
-//        super.onSaveInstanceState(savedInstanceState);
-//        savedInstanceState.putBoolean("MyBoolean", isColorChange);
-//    }
-//
-//    @Override
-//    public void onRestoreInstanceState(Bundle savedInstanceState) {
-//        super.onRestoreInstanceState(savedInstanceState);
-//         myBoolean = savedInstanceState.getBoolean("MyBoolean");
-//    }
-}
+
+
+
+    }

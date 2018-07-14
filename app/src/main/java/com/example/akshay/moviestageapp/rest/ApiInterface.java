@@ -1,4 +1,4 @@
-package com.example.akshay.moviestageapp.Rest;
+package com.example.akshay.moviestageapp.rest;
 
 import com.example.akshay.moviestageapp.model.MovieResponse;
 import com.example.akshay.moviestageapp.model.ReviewResponse;

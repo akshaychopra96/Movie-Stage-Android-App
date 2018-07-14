@@ -1,4 +1,4 @@
-package com.example.akshay.moviestageapp.RecyclerView;
+package com.example.akshay.moviestageapp.recyclerView;
 
 
 import android.content.Context;
@@ -10,14 +10,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.akshay.moviestageapp.R;
-import com.example.akshay.moviestageapp.Utilities.NetworkUtils;
+import com.example.akshay.moviestageapp.utilities.NetworkUtils;
 import com.example.akshay.moviestageapp.model.Trailer;
-import com.example.akshay.moviestageapp.model.TrailerResponse;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
-
-import retrofit2.Callback;
 
 public class TrailerRecyclerViewAdapter extends RecyclerView.Adapter<TrailerRecyclerViewAdapter.TrailerRecyclerViewHolder> {
 

@@ -1,4 +1,4 @@
-package com.example.akshay.moviestageapp.Rest;
+package com.example.akshay.moviestageapp.rest;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

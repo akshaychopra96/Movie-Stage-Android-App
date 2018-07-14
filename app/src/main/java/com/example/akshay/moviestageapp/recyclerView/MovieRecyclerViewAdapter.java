@@ -1,6 +1,7 @@
-package com.example.akshay.moviestageapp.RecyclerView;
+package com.example.akshay.moviestageapp.recyclerView;
 
 import android.content.Context;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,11 +10,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.akshay.moviestageapp.R;
-import com.example.akshay.moviestageapp.Utilities.NetworkUtils;
+import com.example.akshay.moviestageapp.utilities.NetworkUtils;
 import com.example.akshay.moviestageapp.model.Movie;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 

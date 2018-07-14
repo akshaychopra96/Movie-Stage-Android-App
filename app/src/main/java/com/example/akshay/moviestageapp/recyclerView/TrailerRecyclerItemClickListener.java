@@ -1,4 +1,4 @@
-package com.example.akshay.moviestageapp.RecyclerView;
+package com.example.akshay.moviestageapp.recyclerView;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;

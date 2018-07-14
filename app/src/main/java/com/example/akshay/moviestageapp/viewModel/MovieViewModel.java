@@ -1,11 +1,11 @@
-package com.example.akshay.moviestageapp.ViewModel;
+package com.example.akshay.moviestageapp.viewModel;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 
-import com.example.akshay.moviestageapp.Database.MovieRoomDatabase;
+import com.example.akshay.moviestageapp.database.MovieRoomDatabase;
 import com.example.akshay.moviestageapp.model.Movie;
 
 import java.util.List;

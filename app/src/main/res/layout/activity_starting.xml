@@ -10,7 +10,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.example.akshay.moviestageapp.Activity.StartingActivity">
+    tools:context="com.example.akshay.moviestageapp.activity.StartingActivity">
 
     <ImageView
         android:id="@+id/noInternetImageView"

@@ -1,4 +1,4 @@
-package com.example.akshay.moviestageapp.RecyclerView;
+package com.example.akshay.moviestageapp.recyclerView;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.example.akshay.moviestageapp.R;
 import com.example.akshay.moviestageapp.model.Review;
-import com.example.akshay.moviestageapp.model.Trailer;
 
 import java.util.List;
 

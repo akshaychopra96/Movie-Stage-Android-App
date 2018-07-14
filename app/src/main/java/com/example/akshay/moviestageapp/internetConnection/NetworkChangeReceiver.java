@@ -1,4 +1,4 @@
-package com.example.akshay.moviestageapp.InternetConnection;
+package com.example.akshay.moviestageapp.internetConnection;
 
 
 import android.content.BroadcastReceiver;
@@ -6,8 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
-import com.example.akshay.moviestageapp.Activity.MainActivity;
-import com.example.akshay.moviestageapp.Activity.StartingActivity;
+import com.example.akshay.moviestageapp.activity.MainActivity;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 

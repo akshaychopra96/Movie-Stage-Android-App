@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#E53935</color>
     <color name="colorAccent">#FF4081</color>
     <color name="plotSynopsisColor">#0288D1</color>
+    <color name="favButtonUnchecked">#FFEE58</color>
+    <color name="favButtonChecked">#DD2C00</color>
 </resources>
