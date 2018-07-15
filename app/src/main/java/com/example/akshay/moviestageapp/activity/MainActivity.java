@@ -52,6 +52,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.wang.avi.AVLoadingIndicatorView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -62,6 +63,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements MovieRecyclerViewAdapter.ListItemClickListener  {
 
+    private static final String LIST_STATE_KEY = "LIST_STATE_KEY";
     @BindView(R.id.recyclerView) RecyclerView recyclerView;
 
     @BindView(R.id.mainActivityRootLayout) RelativeLayout relativeLayout;
@@ -89,6 +91,9 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
     boolean isPopularMovies;
     private MovieViewModel movieViewModel;
 
+    List<Movie> movieAfterRotation;
+    Parcelable mListState;
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 
     @Override
@@ -98,42 +103,28 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
 
         ButterKnife.bind(this);
 
-        NetworkChangeReceiver.otherActivityVisited  =true;
+        NetworkChangeReceiver.otherActivityVisited = true;
 
         apiService = ApiClient.getClient().create(ApiInterface.class);
-
-/*        SharedPreferences s = getSharedPreferences("myFile", Context.MODE_PRIVATE);
-        isPopularMovies = s.getBoolean("isPopularMovies",true);
-
-       if(isPopularMovies) {
-            call = apiService.getPopularMovies(API_KEY);
-            getPopularMovies(call);
-        }
-        else{
-            call = apiService.getTopRatedMovies(API_KEY);
-            getTopRatedMovies(call);
-        }
-
-
-       movieViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(MovieViewModel.class);
-        movieViewModel.getMoviesList().observe(this, new Observer<List<Movie>>()  {
-            @Override
-            public void onChanged(@Nullable List<Movie> movies) {
-                if (movies != null) {
-                    Log.v("Debug App", "Fetched Data: " + movies.toString());
-                    recyclerView.setAdapter(new MovieRecyclerViewAdapter(movies,MainActivity.this,MainActivity.this));
-                }
-            }
-        });
-*/
-        call = apiService.getPopularMovies(API_KEY);
-        getPopularMovies(call);
-
         final int spanCount = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? 4 : 2;
-
         layoutManager = new GridLayoutManager(this, spanCount);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
+        if (savedInstanceState != null) {
+            Log.v("my_tag", "savedInstanceState not null");
+            movieAfterRotation = savedInstanceState.getParcelableArrayList("movieAfterRotation");
+            Log.v("my_tag", "size of list is:"+movieAfterRotation.size());
+            recyclerView.setAdapter(new MovieRecyclerViewAdapter(movieAfterRotation, MainActivity.this, MainActivity.this));
+            mListState = savedInstanceState.getParcelable(LIST_STATE_KEY);
+            if (mListState != null) {
+                layoutManager.onRestoreInstanceState(mListState);
+            }
+            recyclerView.setVisibility(View.VISIBLE);
+        } else {
+
+            Call<MovieResponse> call = apiService.getPopularMovies(API_KEY);
+            getPopularMovies(call);
+        }
 
     }
 
@@ -150,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
                     movies.clear();
 
                 movies = response.body().getResults();
+                movieAfterRotation = movies;
                 recyclerView.setAdapter(new MovieRecyclerViewAdapter(movies,MainActivity.this,MainActivity.this));
 
                 progressBarEnd();
@@ -168,34 +160,42 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
         });
     }
 
-        public void getTopRatedMovies(Call<MovieResponse> call) {
+    public void getTopRatedMovies(Call<MovieResponse> call) {
 
-            progressBarInit();
+        progressBarInit();
 
-            call.enqueue(new Callback<MovieResponse>() {
-                @Override
-                public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
+        call.enqueue(new Callback<MovieResponse>() {
+            @Override
+            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
 
-                    if(movies!=null)
-                        movies.clear();
+                if(movies!=null)
+                    movies.clear();
 
-                    movies = response.body().getResults();
-                    recyclerView.setAdapter(new MovieRecyclerViewAdapter( movies, MainActivity.this,MainActivity.this));
+                movies = response.body().getResults();
+                movieAfterRotation = movies;
+                recyclerView.setAdapter(new MovieRecyclerViewAdapter( movies, MainActivity.this,MainActivity.this));
 
-                    progressBarEnd();
+                progressBarEnd();
 
-                    recyclerView.setVisibility(View.VISIBLE);
-                    MOVIE_CATEGORY = 1;
-                }
+                recyclerView.setVisibility(View.VISIBLE);
+                MOVIE_CATEGORY = 1;
+            }
 
-                @Override
-                public void onFailure(Call<MovieResponse> call, Throwable t) {
-                    Log.e("tag", t.toString());
+            @Override
+            public void onFailure(Call<MovieResponse> call, Throwable t) {
+                Log.e("tag", t.toString());
 
-                    Snackbar.make(relativeLayout, "Failed Loading List", Snackbar.LENGTH_LONG).show();
-                }
-            });
-        }
+                Snackbar.make(relativeLayout, "Failed Loading List", Snackbar.LENGTH_LONG).show();
+            }
+        });
+    }
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("movieAfterRotation", (ArrayList<Movie>) movieAfterRotation);
+        mListState = layoutManager.onSaveInstanceState();
+        outState.putParcelable(LIST_STATE_KEY, mListState);
+        super.onSaveInstanceState(outState);
+    }
 
     private void progressBarInit() {
 
@@ -366,7 +366,3 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
     }
 
 }
-
-
-
-
