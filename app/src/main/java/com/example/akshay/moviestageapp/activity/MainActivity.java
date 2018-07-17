@@ -1,7 +1,7 @@
 package com.example.akshay.moviestageapp.activity;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +15,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
@@ -39,6 +38,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 
 import com.example.akshay.moviestageapp.BuildConfig;
+import com.example.akshay.moviestageapp.database.MovieRoomDatabase;
 import com.example.akshay.moviestageapp.internetConnection.NetworkChangeReceiver;
 import com.example.akshay.moviestageapp.R;
 import com.example.akshay.moviestageapp.recyclerView.MovieRecyclerViewAdapter;
@@ -54,6 +54,8 @@ import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -74,13 +76,13 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
 
     static boolean secondActivityVisited = false;
 
+    private final Executor executor = Executors.newFixedThreadPool(2);
+
     final static String API_KEY =  BuildConfig.API_KEY;
     ApiInterface apiService;
     List<Movie> movies;
 
     int MOVIE_CATEGORY = 0;
-
-    Call<MovieResponse> call;
 
     private static final int POPULAR_MOVIES = 1;
     private static final int TOP_RATED_MOVIES = 2;
@@ -88,11 +90,9 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
 
     GridLayoutManager layoutManager;
 
-    boolean isPopularMovies;
-    private MovieViewModel movieViewModel;
-
     List<Movie> movieAfterRotation;
     Parcelable mListState;
+    private MovieRoomDatabase mDb;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 
@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
         layoutManager = new GridLayoutManager(this, spanCount);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
+
         if (savedInstanceState != null) {
             Log.v("my_tag", "savedInstanceState not null");
             movieAfterRotation = savedInstanceState.getParcelableArrayList("movieAfterRotation");
@@ -146,9 +147,18 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
 
                 progressBarEnd();
 
+
+                if (mListState != null) {
+                    recyclerView.getLayoutManager().onRestoreInstanceState(mListState);
+                    mListState = null;
+                }
+
                 recyclerView.setVisibility(View.VISIBLE);
 
                 MOVIE_CATEGORY = 0;
+
+
+
             }
 
             @Override
@@ -177,8 +187,14 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
 
                 progressBarEnd();
 
+                if (mListState != null) {
+                    recyclerView.getLayoutManager().onRestoreInstanceState(mListState);
+                    mListState = null;
+                }
+
                 recyclerView.setVisibility(View.VISIBLE);
                 MOVIE_CATEGORY = 1;
+
             }
 
             @Override
@@ -253,8 +269,19 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
                             break;
 
                         case FAVOURITES:
-                            Intent intent = new Intent(getApplicationContext(), FavouriteActivity.class);
-                            startActivity(intent);
+
+//                            mDb = MovieRoomDatabase.getDatabase(getApplicationContext());
+
+//                            executor.execute(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    movies = mDb.movieDao().getAllMovies().getValue();
+//                                    Log.d("tag","size: "+movies.size());
+//                                }
+//                            });
+
+                           // recyclerView.setAdapter(new MovieRecyclerViewAdapter( movies, MainActivity.this,MainActivity.this));
+                            setupViewModel();
                             break;
 
                     }
@@ -279,8 +306,11 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
     @Override
     public void onListItemClick(final int position, List<Movie> moviesList, View view) {
 
-        Picasso.get().load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(movies.get(position).getPosterPath(),NetworkUtils.IMAGE_SIZE_PATH)))
-                .into(new Target() {
+        if(movies == null){
+            movies = movieAfterRotation;
+        }
+            Picasso.get().load(String.valueOf(NetworkUtils.getImageOfMovieDbUrl(movies.get(position).getPosterPath(),NetworkUtils.IMAGE_SIZE_PATH)))
+                    .into(new Target() {
 
                     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
                     @Override
@@ -361,8 +391,16 @@ public class MainActivity extends AppCompatActivity implements MovieRecyclerView
         if(secondActivityVisited && movies!=null) {
             recyclerView.setAdapter(new MovieRecyclerViewAdapter(movies, MainActivity.this,MainActivity.this));
         }
+    }
 
-
+    private void setupViewModel() {
+        MovieViewModel movieViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
+        movieViewModel.getMoviesList().observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(@Nullable List<Movie> movies) {
+                recyclerView.setAdapter(new MovieRecyclerViewAdapter( movies, MainActivity.this,MainActivity.this));
+            }
+        });
     }
 
 }

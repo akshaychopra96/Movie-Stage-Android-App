@@ -61,7 +61,6 @@ public class FavouriteActivity extends AppCompatActivity implements MovieRecycle
     public static final String EXTRA_POSITION = "extra_position";
     private static final int DEFAULT_POSITION = -1;
 
-    private final Executor executor = Executors.newFixedThreadPool(2);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,22 +79,7 @@ public class FavouriteActivity extends AppCompatActivity implements MovieRecycle
         MainActivity.secondActivityVisited = true;
         NetworkChangeReceiver.otherActivityVisited  =true;
 
-        favouriteRecyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
-        favouriteRecyclerView.setHasFixedSize(true);
-        mDb = MovieRoomDatabase.getDatabase(getApplicationContext());
 
-        setupViewModel();
-    }
-
-    private void setupViewModel() {
-        MovieViewModel movieViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
-        movieViewModel.getMoviesList().observe(this, new Observer<List<Movie>>() {
-            @Override
-            public void onChanged(@Nullable List<Movie> movies) {
-                movieAdapter = new MovieRecyclerViewAdapter( movies, FavouriteActivity.this,FavouriteActivity.this);
-                favouriteRecyclerView.setAdapter(movieAdapter);
-            }
-        });
     }
 
 
@@ -104,7 +88,6 @@ public class FavouriteActivity extends AppCompatActivity implements MovieRecycle
         Toast.makeText(this, "!X!Error!X!", Toast.LENGTH_SHORT).show();
 
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -120,12 +103,7 @@ public class FavouriteActivity extends AppCompatActivity implements MovieRecycle
         int id = item.getItemId();
 
         if(id == R.id.deleteAll){
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mDb.movieDao().deleteAll();
-                }
-            });
+
         }
 
         return super.onOptionsItemSelected(item);
