@@ -64,11 +64,11 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
 
         ImageView movieImage;
 
-        public RecyclerViewHolder(@NonNull View itemView) {
-            super(itemView);
-            movieImage = itemView.findViewById(R.id.imageView);
-            itemView.setOnClickListener(this);
-        }
+            public RecyclerViewHolder(@NonNull View itemView) {
+                super(itemView);
+                movieImage = itemView.findViewById(R.id.imageView);
+                itemView.setOnClickListener(this);
+            }
 
         void bind(int listIndex) {
 
