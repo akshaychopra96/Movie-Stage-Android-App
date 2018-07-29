@@ -14,16 +14,22 @@ import com.example.akshay.moviestageapp.model.Movie;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapter.RecyclerViewHolder> {
 
-    Context context;
-    ArrayList<Movie> movies;
+    static Context context;
+    static List<Movie> movies;
 
-    public RecyclerviewAdapter(ArrayList<Movie> movies, Context context){
 
-        this.movies = movies;
+    /**
+     * Changed the constructor to make sure that it does not recieve the array list.
+     * This was done because at time of adapter creation, we do not have nany data.
+     * @param context
+     */
+    public RecyclerviewAdapter( Context context){
+
         this.context = context;
 
     }
@@ -48,9 +54,19 @@ public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapte
         holder.bind(position);
     }
 
+
+    /**
+     * To avoid having Null pointer exception, I added a check for null movies
+     * This happens when we create the adapter and set it to the recycler view and run the app
+     * it tries to count the size of the list while we haven't recieved any data from net.
+     * @return
+     */
     @Override
     public int getItemCount() {
-        return 20;
+        if (movies == null)
+            return 0;
+        else
+            return movies.size();
     }
 
     public class RecyclerViewHolder extends  RecyclerView.ViewHolder{
@@ -75,6 +91,20 @@ public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapte
                 }
 
         }
+    }
+
+
+    /**
+     *
+     * Change no. 6
+     *
+     * Created this method to make sure the data is always updated
+     * @param moviesNew
+     */
+
+    public void switchAdapter( List<Movie> moviesNew) {
+        movies = moviesNew;
+        notifyDataSetChanged();
     }
 
 }

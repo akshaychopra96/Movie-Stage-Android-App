@@ -76,6 +76,17 @@ public class MainActivity extends AppCompatActivity {
     private static final int POPULAR_MOVIES = 0;
     private static final int TOP_RATED_MOVIES = 1;
 
+    /**
+     * Change No. 2
+     *
+     * Created an adapter variable to set to the recycler view so that you do not create
+     * new adapter again and again.
+     * Creating new adapter was resetting the scroll position.
+     */
+
+    private RecyclerviewAdapter mAdapter;
+
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 
     @Override
@@ -97,6 +108,14 @@ public class MainActivity extends AppCompatActivity {
         GridLayoutManager layoutManager = new GridLayoutManager(this, spanCount);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
+
+        /**
+         * Change no. 3
+         *
+         * Added the adapter to the recycler view
+         */
+        mAdapter = new RecyclerviewAdapter(this);
+        recyclerView.setAdapter(mAdapter);
 
 
         recyclerView.addOnItemTouchListener(
@@ -177,6 +196,15 @@ public class MainActivity extends AppCompatActivity {
                         TransitionManager.beginDelayedTransition(recyclerView, explode);
 
                         // remove all views from Recycler View
+
+                        /**
+                         *
+                         * SEE THIS!!
+                         *
+                         * If I remove this line, I see that the list state is restored as it was before going to
+                         * detail screen.
+                         * But this removes any animation you applied
+                         */
                         recyclerView.setAdapter(null);
                     }
 
@@ -204,7 +232,16 @@ public class MainActivity extends AppCompatActivity {
                     movies.clear();
 
                 movies = response.body().getResults();
-                recyclerView.setAdapter(new RecyclerviewAdapter((ArrayList<Movie>) movies, getApplicationContext()));
+
+
+/**
+ * Change no. 4
+ *
+ * When I created a switch adapter method to make sure the data of therecycler view always stay updated,
+ * I could avoid creating new adapters everytime
+ */
+
+                mAdapter.switchAdapter(movies);
 
                 progressBarEnd();
 
@@ -234,7 +271,15 @@ public class MainActivity extends AppCompatActivity {
                         movies.clear();
 
                     movies = response.body().getResults();
-                    recyclerView.setAdapter(new RecyclerviewAdapter((ArrayList<Movie>) movies, getApplicationContext()));
+
+
+/**
+ * Change no. 5 (Same as 4)
+ *
+ * When I created a switch adapter method to make sure the data of therecycler view always stay updated,
+ * I could avoid creating new adapters everytime
+ */
+                    mAdapter.switchAdapter(movies);
 
                     progressBarEnd();
 
@@ -307,9 +352,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if(secondActivityVisited) {
-            recyclerView.setAdapter(new RecyclerviewAdapter((ArrayList<Movie>) movies, getApplicationContext()));
-        }
+
     }
 
     @Override
@@ -317,7 +360,36 @@ public class MainActivity extends AppCompatActivity {
         this.finish();
         super.onBackPressed();
 
+
     }
 
 
+    /**
+     * Change No. 1
+     *
+     * Changes here. Created on save and onRestoreInstance state method to store the movie array list object.
+     * This also manages the scroll position automatically
+     * @param outState
+     */
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelableArrayList("adapterData", (ArrayList<? extends Parcelable>) movies);
+
+
+    }
+
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        movies = savedInstanceState.getParcelableArrayList("adapterData");
+        if(secondActivityVisited) {
+            mAdapter.switchAdapter(movies);
+        }
+
+    }
 }
