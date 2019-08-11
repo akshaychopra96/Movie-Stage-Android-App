@@ -12,17 +12,16 @@
 
 - ### If you start the app without a internet connection
 
-![nowifi](https://user-images.githubusercontent.com/19914114/62838493-a625ee80-bc9a-11e9-838d-4c41d74ac56b.png)
- 
+<img src="https://user-images.githubusercontent.com/19914114/62838493-a625ee80-bc9a-11e9-838d-4c41d74ac56b.png" width="250">
+
 - ### MainActivity of the app
 
-![mainactivity](https://user-images.githubusercontent.com/19914114/62838526-1c2a5580-bc9b-11e9-8077-effdc80ab60a.png)
+<img src="https://user-images.githubusercontent.com/19914114/62838526-1c2a5580-bc9b-11e9-8077-effdc80ab60a.png" width="250">
 
 - ### MainActivity with Options Menu
 
-![optionsmenu](https://user-images.githubusercontent.com/19914114/62838557-a2df3280-bc9b-11e9-9719-2549a295a0ed.png)
+<img src="https://user-images.githubusercontent.com/19914114/62838557-a2df3280-bc9b-11e9-9719-2549a295a0ed.png" width="250">
 
 - ### Movie Details Activity
 
-![details page](https://user-images.githubusercontent.com/19914114/62838570-d8841b80-bc9b-11e9-8a0e-6220a1911220.png)
-
+<img src="https://user-images.githubusercontent.com/19914114/62838570-d8841b80-bc9b-11e9-8a0e-6220a1911220.png" width="250">
