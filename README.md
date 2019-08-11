@@ -1,7 +1,7 @@
 # Movie Stage App
 
 
-## What Will I Learn from this project?
+## What Will You Learn from this project?
 
 -   You will learn how to fetch data from the Internet with theMovieDB API.
 -   You will learn to use Adapters and custom list layouts to display in RecyclerView.
